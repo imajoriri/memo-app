@@ -13,6 +13,8 @@ dependencies:
   cupertino_icons: ^1.0.6
   appflowy_editor: ^3.2.0
 
+  model:
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

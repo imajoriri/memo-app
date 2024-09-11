@@ -1,0 +1,53 @@
+{
+    // IntelliSense を使用して利用可能な属性を学べます。
+    // 既存の属性の説明をホバーして表示します。
+    // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "memo-app",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "desktop",
+            "cwd": "packages/desktop",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "desktop (profile mode)",
+            "cwd": "packages/desktop",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "desktop (release mode)",
+            "cwd": "packages/desktop",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "model",
+            "cwd": "packages/model",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "model (profile mode)",
+            "cwd": "packages/model",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "model (release mode)",
+            "cwd": "packages/model",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
