@@ -1,4 +1,4 @@
-name: memo-app
+name: memo_app
 
 environment:
   sdk: "^3.0.0"

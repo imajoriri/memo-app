@@ -1,3 +1,5 @@
-name: memo-app
+name: "memo-app"
 packages:
   - packages/*
+
+sdkPath: .fvm/flutter_sdk
