@@ -1,6 +1,7 @@
-name: desktop
+name: mobile
 description: "A new Flutter project."
 publish_to: "none"
+
 version: 1.0.0+1
 
 environment:
@@ -10,7 +11,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.6
   logger: ^2.0.2+1
 
   # Riverpod
