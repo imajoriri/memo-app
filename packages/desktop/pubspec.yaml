@@ -11,7 +11,19 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.6
-  appflowy_editor: ^3.2.0
+  logger: ^2.0.2+1
+
+  # Riverpod
+  hooks_riverpod: ^3.0.0-dev.3
+  flutter_hooks: ^0.20.5
+
+  firebase_core: ^3.4.0
+  firebase_auth: ^5.2.0
+  firebase_crashlytics: ^4.1.0
+  cloud_firestore: 5.3.0
+  firebase_analytics: ^11.3.0
+  firebase_vertexai: ^0.2.3
+  firebase_app_check: ^0.3.0+5
 
   model:
 

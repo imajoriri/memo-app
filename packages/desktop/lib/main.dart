@@ -1,11 +1,53 @@
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:logger/web.dart';
+import 'package:model/controller/global_memo.dart';
 import 'package:model/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeFirebase();
-  runApp(const MyApp());
+  runApp(
+    ProviderScope(
+      observers: [_AppObserver()],
+      child: const MyApp(),
+    ),
+  );
+}
+
+class _AppObserver extends ProviderObserver {
+  @override
+  void didUpdateProvider(
+    ProviderBase<Object?> provider,
+    Object? previousValue,
+    Object? newValue,
+    ProviderContainer container,
+  ) {
+    if (newValue is AsyncError) {
+      final logger = Logger();
+      logger.e(
+        newValue.error.toString(),
+        error: newValue.error,
+        stackTrace: newValue.stackTrace,
+      );
+    }
+  }
+
+  @override
+  void providerDidFail(
+    ProviderBase<Object?> provider,
+    Object error,
+    StackTrace stackTrace,
+    ProviderContainer container,
+  ) {
+    final logger = Logger();
+    logger.e(
+      error,
+      error: error,
+      stackTrace: stackTrace,
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -19,31 +61,44 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+class MyHomePage extends HookConsumerWidget {
+  const MyHomePage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final textEditingController = TextEditingController();
+    useEffect(
+      () {
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+          print("text1: ${textEditingController.text}");
+          textEditingController.text =
+              await ref.read(globalMemoProvider.future);
+          print("text2: ${textEditingController.text}");
+        });
+        return null;
+      },
+      [],
+    );
 
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    final editorState = EditorState.blank(withInitialText: true);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: const Text('Flutter Demo Home Page'),
       ),
-      body: Center(
-        child: AppFlowyEditor(
-          editorState: editorState,
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: TextField(
+          controller: textEditingController,
+          expands: true,
+          maxLines: null,
+          onChanged: (value) {
+            ref.read(globalMemoProvider.notifier).updateMemo(value);
+          },
         ),
       ),
     );
