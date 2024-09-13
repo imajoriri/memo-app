@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/web.dart';
 import 'package:model/controller/global_memo.dart';
@@ -72,16 +71,9 @@ class MyHomePage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final textEditingController = TextEditingController();
-    useEffect(
-      () {
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-          textEditingController.text =
-              await ref.read(globalMemoProvider.future);
-        });
-        return null;
-      },
-      [],
-    );
+    ref.listen(globalMemoProvider, (previous, next) {
+      textEditingController.text = next.valueOrNull ?? '';
+    });
 
     return Scaffold(
       appBar: AppBar(

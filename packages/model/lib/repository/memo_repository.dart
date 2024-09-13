@@ -25,6 +25,24 @@ class MemoRepository {
     return '';
   }
 
+  // TODO: doc comment, named parameter
+  Stream<
+      ({
+        String content,
+        bool isLocalChange,
+      })> stream() {
+    return FirebaseFirestore.instance
+        .collection('users')
+        .doc("test")
+        .snapshots()
+        .map((event) {
+      return (
+        content: event.data()?['content'] as String,
+        isLocalChange: event.metadata.hasPendingWrites,
+      );
+    });
+  }
+
   Future<void> updateMemo(String content) async {
     await FirebaseFirestore.instance
         .collection('users')
