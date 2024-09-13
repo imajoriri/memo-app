@@ -25,7 +25,6 @@ class MemoRepository {
     return '';
   }
 
-  // TODO: doc comment, named parameter
   Stream<
       ({
         String content,
