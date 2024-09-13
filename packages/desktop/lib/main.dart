@@ -1,8 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/web.dart';
 import 'package:model/controller/global_memo.dart';
 import 'package:model/firebase_options.dart';
+
+@pragma('vm:entry-point')
+void panel() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeFirebase();
+  const methodChannel = MethodChannel('panel_window');
+  methodChannel.invokeMethod('open');
+  runApp(
+    ProviderScope(
+      observers: [_AppObserver()],
+      child: const MaterialApp(home: Text('hoge')),
+    ),
+  );
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -75,6 +90,12 @@ class MyHomePage extends HookConsumerWidget {
       textEditingController.text = next.valueOrNull ?? '';
     });
 
+    // final controller = ZefyrController();
+    // controller.addListener(() {
+    //   controller.document.root.children.forEach((node) {
+    //     print(node.toPlainText());
+    //   });
+    // });
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -82,13 +103,35 @@ class MyHomePage extends HookConsumerWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: TextField(
-          controller: textEditingController,
-          expands: true,
-          maxLines: null,
-          onChanged: (value) {
-            ref.read(globalMemoProvider.notifier).updateMemo(value);
+        // child: ZefyrEditor(
+        //   controller: controller,
+        // ),
+        // child: EditableTextLine(
+        //   child: TextLine(
+        //     node: LineNode(),
+        //     embedBuilder: (context, embedNode) {
+        //       return Text(
+        //         // embedNode.,
+        //         'embedNode',
+        //       );
+        //     },
+        //     textAlign: TextAlign.left,
+        //   ),
+        // ),
+        // child: TextField(
+        //   controller: textEditingController,
+        //   expands: true,
+        //   maxLines: null,
+        //   onChanged: (value) {
+        //     ref.read(globalMemoProvider.notifier).updateMemo(value);
+        //   },
+        // ),
+        child: FilledButton(
+          onPressed: () {
+            const methodChannel = MethodChannel('panel_window');
+            methodChannel.invokeMethod('open');
           },
+          child: const Text('Save'),
         ),
       ),
     );
