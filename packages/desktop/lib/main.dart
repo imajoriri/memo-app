@@ -1,8 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:logger/web.dart';
 import 'package:model/controller/global_memo.dart';
 import 'package:model/firebase_options.dart';
+
+@pragma('vm:entry-point')
+void panel() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeFirebase();
+
+  const methodChannel = MethodChannel('panel_window');
+
+  await hotKeyManager.unregisterAll();
+  final hotKey = HotKey(
+    key: PhysicalKeyboardKey.keyM,
+    modifiers: [HotKeyModifier.control, HotKeyModifier.shift],
+  );
+  await hotKeyManager.register(
+    hotKey,
+    keyDownHandler: (hotKey) {
+      methodChannel.invokeMethod('open');
+    },
+  );
+
+  methodChannel.setMethodCallHandler((call) async {
+    switch (call.method) {
+      case 'active':
+        break;
+      case 'inactive':
+        methodChannel.invokeMethod('close');
+        break;
+    }
+    return null;
+  });
+  runApp(
+    ProviderScope(
+      observers: [_AppObserver()],
+      child: MaterialApp(
+        home: HookConsumer(builder: (context, ref, child) {
+          final textEditingController = useTextEditingController();
+          final focusNode = useFocusNode();
+          return Scaffold(
+            body: TextField(
+              controller: textEditingController,
+              focusNode: focusNode,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+              onSubmitted: (value) {
+                ref.read(globalMemoProvider.notifier).addToBottom(value);
+                textEditingController.clear();
+                focusNode.requestFocus();
+              },
+            ),
+          );
+        }),
+      ),
+    ),
+  );
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,7 +131,10 @@ class MyHomePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final textEditingController = TextEditingController();
     ref.listen(globalMemoProvider, (previous, next) {
-      textEditingController.text = next.valueOrNull ?? '';
+      if (next.valueOrNull != textEditingController.text &&
+          next.valueOrNull?.isNotEmpty == true) {
+        textEditingController.text = next.requireValue;
+      }
     });
 
     return Scaffold(
