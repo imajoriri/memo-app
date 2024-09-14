@@ -25,7 +25,6 @@ class MemoRepository {
     return '';
   }
 
-  // TODO: doc comment, named parameter
   Stream<
       ({
         String content,
@@ -36,11 +35,23 @@ class MemoRepository {
         .doc("test")
         .snapshots()
         .map((event) {
+      final content = event.data()?['content'] as String?;
       return (
-        content: event.data()?['content'] as String,
+        content: content ?? '',
         isLocalChange: event.metadata.hasPendingWrites,
       );
     });
+  }
+
+  Future<String> fetch() async {
+    final result =
+        await FirebaseFirestore.instance.collection('users').doc("test").get();
+    if (result.exists) {
+      final data = result.data() as Map<String, dynamic>;
+      final content = data["content"] as String?;
+      return content ?? '';
+    }
+    return '';
   }
 
   Future<void> updateMemo(String content) async {

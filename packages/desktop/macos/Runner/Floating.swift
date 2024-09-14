@@ -10,8 +10,11 @@ import FlutterMacOS
 import SwiftUI
 import Firebase
 
+let flutterEngine = FlutterEngine(name: "my flutter engine", project: nil)
+let panelFlutterViewController = FlutterViewController(engine: flutterEngine, nibName: nil, bundle: nil)
+let panelChannelMethod = FlutterMethodChannel(name: "panel_window", binaryMessenger: panelFlutterViewController.engine.binaryMessenger)
+
 class FloatingPanel: NSPanel {
-  var channelMethod: FlutterMethodChannel!
 
   init() {
     super.init(contentRect: NSRect(x: 0, y: 0, width: 1200, height: 600),
@@ -24,12 +27,11 @@ class FloatingPanel: NSPanel {
                backing: .buffered,
                defer: false
     )
-    let flutterEngine = FlutterEngine(name: "my flutter engine", project: nil)
+
     flutterEngine.run(withEntrypoint: "panel");
-    let flutterViewController = FlutterViewController(engine: flutterEngine, nibName: nil, bundle: nil)
-    self.contentView = flutterViewController.view
-    self.contentViewController = flutterViewController
-    RegisterGeneratedPlugins(registry: flutterViewController)
+    self.contentView = panelFlutterViewController.view
+    self.contentViewController = panelFlutterViewController
+    RegisterGeneratedPlugins(registry: panelFlutterViewController)
 
     // Set this if you want the panel to remember its size/position
     self.setFrameAutosaveName("a unique name")
@@ -53,7 +55,6 @@ class FloatingPanel: NSPanel {
     self.standardWindowButton(.miniaturizeButton)?.isHidden = true
     self.standardWindowButton(.zoomButton)?.isHidden = true
 
-    channelMethod = FlutterMethodChannel(name: "panel_window", binaryMessenger: flutterViewController.engine.binaryMessenger)
     setupNotification()
     setHandler()
   }
@@ -68,11 +69,11 @@ class FloatingPanel: NSPanel {
   }
 
   @objc private func handleDidBecomeKeyNotification(_ notification: Notification) {
-    self.channelMethod.invokeMethod("active", arguments: nil)
+    panelChannelMethod.invokeMethod("active", arguments: nil)
   }
 
   @objc private func handleDidResignKeyNotification(_ notification: Notification) {
-    self.channelMethod.invokeMethod("inactive", arguments: nil)
+    panelChannelMethod.invokeMethod("inactive", arguments: nil)
   }
 
   override var canBecomeMain: Bool {
@@ -91,7 +92,7 @@ class FloatingPanel: NSPanel {
 
   func setHandler() {
     // Flutter側でのイベントを受け取る
-    channelMethod.setMethodCallHandler { (call, result) in
+    panelChannelMethod.setMethodCallHandler { (call, result) in
       switch call.method {
       case "resizePanel":
         self.setFrameSize(call: call)

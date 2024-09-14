@@ -1,14 +1,17 @@
 import Cocoa
 import FlutterMacOS
 
+let mainFlutterViewController = FlutterViewController()
+let mainChannelMethod = FlutterMethodChannel(name: "main_window", binaryMessenger: mainFlutterViewController.engine.binaryMessenger)
+
 class MainFlutterWindow: NSWindow {
   override func awakeFromNib() {
-    let flutterViewController = FlutterViewController()
+
     let windowFrame = self.frame
-    self.contentViewController = flutterViewController
+    self.contentViewController = mainFlutterViewController
     self.setFrame(windowFrame, display: true)
 
-    RegisterGeneratedPlugins(registry: flutterViewController)
+    RegisterGeneratedPlugins(registry: mainFlutterViewController)
     FloatingPanel()
 
     super.awakeFromNib()

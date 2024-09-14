@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:logger/web.dart';
 import 'package:model/controller/global_memo.dart';
 import 'package:model/firebase_options.dart';
@@ -9,12 +11,54 @@ import 'package:model/firebase_options.dart';
 void panel() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeFirebase();
+
   const methodChannel = MethodChannel('panel_window');
-  methodChannel.invokeMethod('open');
+
+  await hotKeyManager.unregisterAll();
+  final hotKey = HotKey(
+    key: PhysicalKeyboardKey.keyM,
+    modifiers: [HotKeyModifier.control, HotKeyModifier.shift],
+  );
+  await hotKeyManager.register(
+    hotKey,
+    keyDownHandler: (hotKey) {
+      methodChannel.invokeMethod('open');
+    },
+  );
+
+  methodChannel.setMethodCallHandler((call) async {
+    switch (call.method) {
+      case 'active':
+        break;
+      case 'inactive':
+        methodChannel.invokeMethod('close');
+        break;
+    }
+    return null;
+  });
   runApp(
     ProviderScope(
       observers: [_AppObserver()],
-      child: const MaterialApp(home: Text('hoge')),
+      child: MaterialApp(
+        home: HookConsumer(builder: (context, ref, child) {
+          final textEditingController = useTextEditingController();
+          final focusNode = useFocusNode();
+          return Scaffold(
+            body: TextField(
+              controller: textEditingController,
+              focusNode: focusNode,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+              onSubmitted: (value) {
+                ref.read(globalMemoProvider.notifier).addToBottom(value);
+                textEditingController.clear();
+                focusNode.requestFocus();
+              },
+            ),
+          );
+        }),
+      ),
     ),
   );
 }
@@ -87,15 +131,12 @@ class MyHomePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final textEditingController = TextEditingController();
     ref.listen(globalMemoProvider, (previous, next) {
-      textEditingController.text = next.valueOrNull ?? '';
+      if (next.valueOrNull != textEditingController.text &&
+          next.valueOrNull?.isNotEmpty == true) {
+        textEditingController.text = next.requireValue;
+      }
     });
 
-    // final controller = ZefyrController();
-    // controller.addListener(() {
-    //   controller.document.root.children.forEach((node) {
-    //     print(node.toPlainText());
-    //   });
-    // });
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -103,35 +144,13 @@ class MyHomePage extends HookConsumerWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        // child: ZefyrEditor(
-        //   controller: controller,
-        // ),
-        // child: EditableTextLine(
-        //   child: TextLine(
-        //     node: LineNode(),
-        //     embedBuilder: (context, embedNode) {
-        //       return Text(
-        //         // embedNode.,
-        //         'embedNode',
-        //       );
-        //     },
-        //     textAlign: TextAlign.left,
-        //   ),
-        // ),
-        // child: TextField(
-        //   controller: textEditingController,
-        //   expands: true,
-        //   maxLines: null,
-        //   onChanged: (value) {
-        //     ref.read(globalMemoProvider.notifier).updateMemo(value);
-        //   },
-        // ),
-        child: FilledButton(
-          onPressed: () {
-            const methodChannel = MethodChannel('panel_window');
-            methodChannel.invokeMethod('open');
+        child: TextField(
+          controller: textEditingController,
+          expands: true,
+          maxLines: null,
+          onChanged: (value) {
+            ref.read(globalMemoProvider.notifier).updateMemo(value);
           },
-          child: const Text('Save'),
         ),
       ),
     );
