@@ -28,7 +28,7 @@ class FloatingPanel: NSPanel {
                defer: false
     )
 
-    flutterEngine.run(withEntrypoint: "panel");
+    flutterEngine.run(withEntrypoint: "panel")
     self.contentView = panelFlutterViewController.view
     self.contentViewController = panelFlutterViewController
     RegisterGeneratedPlugins(registry: panelFlutterViewController)
