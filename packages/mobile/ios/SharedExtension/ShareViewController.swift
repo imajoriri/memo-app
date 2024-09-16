@@ -10,10 +10,15 @@ import SwiftUI
 import Social
 import Flutter
 import UniformTypeIdentifiers
+import FirebaseCore
+import FirebaseFirestore
+import FirebaseAuth
 
 class ShareViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
+
+    FirebaseApp.configure()
 
     guard
       let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
@@ -96,8 +101,21 @@ struct ShareExtensionView: View {
           .textFieldStyle(.roundedBorder)
 
         Button {
-          // TODO: Something with the text
-          self.close()
+          let db = Firestore.firestore()
+          let docRef = db.collection("users").document("test")
+          Task {
+            do {
+              let document = try await docRef.getDocument()
+              if document.exists {
+                let content = (document.data()?["content"] ?? "") as! String
+                let newContent = content + "\n" + text
+                try await docRef.setData(["content": newContent])
+                self.close()
+              }
+            } catch {
+              print("Error adding document:")
+            }
+          }
         } label: {
           Text("Post")
             .frame(maxWidth: .infinity)
@@ -116,29 +134,7 @@ struct ShareExtensionView: View {
     }
   }
 
-  // so we can close the whole extension
   func close() {
     NotificationCenter.default.post(name: NSNotification.Name("close"), object: nil)
   }
 }
-
-//class ShareViewController: SLComposeServiceViewController {
-//
-//    override func isContentValid() -> Bool {
-//        // Do validation of contentText and/or NSExtensionContext attachments here
-//        return true
-//    }
-//
-//    override func didSelectPost() {
-//        // This is called after the user selects Post. Do the upload of contentText and/or NSExtensionContext attachments.
-//
-//        // Inform the host that we're done, so it un-blocks its UI. Note: Alternatively you could call super's -didSelectPost, which will similarly complete the extension context.
-//        self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
-//    }
-//
-//    override func configurationItems() -> [Any]! {
-//        // To add configuration options via table cells at the bottom of the sheet, return an array of SLComposeSheetConfigurationItem here.
-//        return []
-//    }
-//
-//}

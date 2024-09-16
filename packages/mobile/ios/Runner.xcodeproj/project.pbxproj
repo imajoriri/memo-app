@@ -14,6 +14,7 @@
 		474D79F82C9577B800ABE018 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 474D79F72C9577B800ABE018 /* ShareViewController.swift */; };
 		474D79FB2C9577B900ABE018 /* Base in Resources */ = {isa = PBXBuildFile; fileRef = 474D79FA2C9577B900ABE018 /* Base */; };
 		474D79FF2C9577B900ABE018 /* SharedExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 474D79F52C9577B800ABE018 /* SharedExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		474D7A822C98424900ABE018 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 474D7A812C98424900ABE018 /* GoogleService-Info.plist */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		7F455FF319FD20B8ECE2F172 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A33418415A2FB217B7FBAB9 /* Pods_Runner.framework */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
@@ -80,6 +81,7 @@
 		474D7A0B2C95892200ABE018 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		474D7A0F2C95AE1600ABE018 /* Flutter.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:S8QB4VV633:FLUTTER.IO LLC"; lastKnownFileType = wrapper.xcframework; name = Flutter.xcframework; path = ../../../../../fvm/versions/3.22.0/bin/cache/artifacts/engine/ios/extension_safe/Flutter.xcframework; sourceTree = "<group>"; };
 		474D7A5C2C95B48800ABE018 /* Flutter.xcframework */ = {isa = PBXFileReference; expectedSignature = "AppleDeveloperProgram:S8QB4VV633:FLUTTER.IO LLC"; lastKnownFileType = wrapper.xcframework; name = Flutter.xcframework; path = "../../../../../fvm/versions/3.22.0/bin/cache/artifacts/engine/ios-release/extension_safe/Flutter.xcframework"; sourceTree = "<group>"; };
+		474D7A812C98424900ABE018 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		4979BE13163D416FA9A77B10 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -137,6 +139,7 @@
 			children = (
 				474D7A0A2C95889500ABE018 /* SharedExtension.entitlements */,
 				474D79F72C9577B800ABE018 /* ShareViewController.swift */,
+				474D7A812C98424900ABE018 /* GoogleService-Info.plist */,
 				474D79F92C9577B900ABE018 /* MainInterface.storyboard */,
 				474D79FC2C9577B900ABE018 /* Info.plist */,
 			);
@@ -338,6 +341,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				474D79FB2C9577B900ABE018 /* Base in Resources */,
+				474D7A822C98424900ABE018 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
