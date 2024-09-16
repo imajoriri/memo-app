@@ -4,23 +4,6 @@ import 'package:logger/web.dart';
 import 'package:model/controller/global_memo.dart';
 import 'package:model/firebase_options.dart';
 
-@pragma('vm:entry-point')
-void shareExtension() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  runApp(
-    ProviderScope(
-      observers: [_AppObserver()],
-      child: const MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: Text('Hello World'),
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeFirebase();
@@ -89,7 +72,10 @@ class MyHomePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final textEditingController = TextEditingController();
     ref.listen(globalMemoProvider, (previous, next) {
-      textEditingController.text = next.valueOrNull ?? '';
+      if (next.valueOrNull != textEditingController.text &&
+          next.valueOrNull?.isNotEmpty == true) {
+        textEditingController.text = next.requireValue;
+      }
     });
 
     return Scaffold(

@@ -4,22 +4,22 @@
 <dict>
 	<key>NSExtension</key>
 	<dict>
-		<key>NSExtensionPrincipalClass</key>
-		<string>SharedExtension.ShareViewController</string>
-		<key>NSExtensionPointIdentifier</key>
-		<string>com.apple.share-services</string>
 		<key>NSExtensionAttributes</key>
 		<dict>
 			<key>NSExtensionActivationRule</key>
 			<dict>
-				<key>NSExtensionActivationSupportsWebPageWithMaxCount</key>
-				<integer>1</integer>
 				<key>NSExtensionActivationSupportsText</key>
 				<true/>
+				<key>NSExtensionActivationSupportsWebPageWithMaxCount</key>
+				<integer>1</integer>
 				<key>NSExtensionActivationSupportsWebURLWithMaxCount</key>
 				<integer>1</integer>
 			</dict>
 		</dict>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.share-services</string>
+		<key>NSExtensionPrincipalClass</key>
+		<string>SharedExtension.ShareViewController</string>
 	</dict>
 </dict>
 </plist>

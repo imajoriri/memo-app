@@ -8,7 +8,6 @@
 import UIKit
 import SwiftUI
 import Social
-import Flutter
 import UniformTypeIdentifiers
 import FirebaseCore
 import FirebaseFirestore
