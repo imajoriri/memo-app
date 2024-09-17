@@ -11,7 +11,6 @@ import Social
 import UniformTypeIdentifiers
 import FirebaseCore
 import FirebaseFirestore
-import FirebaseAuth
 
 class ShareViewController: UIViewController {
   override func viewDidLoad() {
