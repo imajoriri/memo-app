@@ -58,7 +58,7 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions dev = FirebaseOptions(
+  static const FirebaseOptions prod = FirebaseOptions(
     apiKey: 'AIzaSyCKxhyD3zR1-e6Vhffbb6pLcbtxWp7wcQA',
     appId: '1:504383288895:ios:90cda6098369bb60022a8a',
     messagingSenderId: '504383288895',
@@ -67,7 +67,7 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.imajo.memo-app',
   );
 
-  static const FirebaseOptions prod = FirebaseOptions(
+  static const FirebaseOptions dev = FirebaseOptions(
     apiKey: 'AIzaSyBCdteoQHRu4WFPNXY4L5zDFa1UwLISV8Q',
     appId: '1:682418822184:ios:36ccec53e65aaa1d94a91d',
     messagingSenderId: '682418822184',
