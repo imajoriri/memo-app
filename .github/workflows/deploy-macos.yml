@@ -62,7 +62,7 @@ jobs:
       - name: Build macOS app
         working-directory: packages/desktop
         run: |
-          build_number=$(app-store-connect get-latest-build-number $APPLE_APP_ID)
+          build_number=$(app-store-connect get-latest-build-number $APPLE_APP_ID --platform=MAC_OS)
           new_build_number=$((build_number + 1))
           flutter build macos --build-number=$new_build_number
 
