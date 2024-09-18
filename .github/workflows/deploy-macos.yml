@@ -55,7 +55,7 @@ jobs:
       - name: "xcode-project use-profiles"
         working-directory: packages/desktop
         run: |
-          /usr/bin/plutil -replace CFBundleIdentifier -string $APP_BUNDLE_ID ios/Runner/Info.plist
+          /usr/bin/plutil -replace CFBundleIdentifier -string $APP_BUNDLE_ID macos/Runner/Info.plist
           find **/*.xcodeproj -type f | xargs sed -i "" -E 's/PRODUCT_BUNDLE_IDENTIFIER = ".+";//g'
           xcode-project use-profiles
 
