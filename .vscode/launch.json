@@ -5,11 +5,6 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "memo-app",
-      "request": "launch",
-      "type": "dart"
-    },
-    {
       "name": "desktop",
       "cwd": "packages/desktop",
       "request": "launch",
