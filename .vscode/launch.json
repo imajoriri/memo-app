@@ -5,30 +5,32 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "desktop",
+      "name": "desktop (dev)",
       "cwd": "packages/desktop",
       "request": "launch",
-      "type": "dart"
+      "type": "dart",
+      "args": ["--dart-define-from-file=dart_defines/dev.env"]
     },
     {
       "name": "desktop (release mode)",
       "cwd": "packages/desktop",
       "request": "launch",
       "type": "dart",
-      "flutterMode": "release"
+      "args": ["--dart-define-from-file=dart_defines/prod.env"]
     },
     {
       "name": "mobile",
       "cwd": "packages/mobile",
       "request": "launch",
-      "type": "dart"
+      "type": "dart",
+      "args": ["--dart-define-from-file=dart_defines/dev.env"]
     },
     {
       "name": "mobile (release mode)",
       "cwd": "packages/mobile",
       "request": "launch",
       "type": "dart",
-      "flutterMode": "release"
+      "args": ["--dart-define-from-file=dart_defines/prod.env"]
     }
   ]
 }
