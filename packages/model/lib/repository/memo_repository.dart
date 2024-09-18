@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'memo_repository.g.dart';
+
+const collectionPrefix = kReleaseMode ? '' : 'dev_';
 
 @riverpod
 MemoRepository memoRepository(MemoRepositoryRef ref) =>
@@ -15,8 +18,10 @@ class MemoRepository {
   final Ref ref;
 
   Future<String> fetchMemo() async {
-    final result =
-        await FirebaseFirestore.instance.collection('users').doc("test").get();
+    final result = await FirebaseFirestore.instance
+        .collection('${collectionPrefix}users')
+        .doc("test")
+        .get();
     if (result.exists) {
       final data = result.data() as Map<String, dynamic>;
       final content = data["content"] as String?;
@@ -31,7 +36,7 @@ class MemoRepository {
         bool isLocalChange,
       })> stream() {
     return FirebaseFirestore.instance
-        .collection('users')
+        .collection('${collectionPrefix}users')
         .doc("test")
         .snapshots()
         .map((event) {
@@ -44,8 +49,10 @@ class MemoRepository {
   }
 
   Future<String> fetch() async {
-    final result =
-        await FirebaseFirestore.instance.collection('users').doc("test").get();
+    final result = await FirebaseFirestore.instance
+        .collection('${collectionPrefix}users')
+        .doc("test")
+        .get();
     if (result.exists) {
       final data = result.data() as Map<String, dynamic>;
       final content = data["content"] as String?;
@@ -56,7 +63,7 @@ class MemoRepository {
 
   Future<void> updateMemo(String content) async {
     await FirebaseFirestore.instance
-        .collection('users')
+        .collection('${collectionPrefix}users')
         .doc("test")
         .set({'content': content});
   }
