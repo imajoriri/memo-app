@@ -67,13 +67,12 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.imajo.memo-app',
   );
 
-  // TODO: 本番環境の設定を追加する
   static const FirebaseOptions prod = FirebaseOptions(
-    apiKey: 'AIzaSyCKxhyD3zR1-e6Vhffbb6pLcbtxWp7wcQA',
-    appId: '1:504383288895:ios:90cda6098369bb60022a8a',
-    messagingSenderId: '504383288895',
-    projectId: 'memo-app-7a379',
-    storageBucket: 'memo-app-7a379.appspot.com',
-    iosBundleId: 'com.imajo.memo-app',
+    apiKey: 'AIzaSyBCdteoQHRu4WFPNXY4L5zDFa1UwLISV8Q',
+    appId: '1:682418822184:ios:36ccec53e65aaa1d94a91d',
+    messagingSenderId: '682418822184',
+    projectId: 'a-note-dev',
+    storageBucket: 'a-note-dev.appspot.com',
+    iosBundleId: 'com.imajo.memo-app.dev',
   );
 }
