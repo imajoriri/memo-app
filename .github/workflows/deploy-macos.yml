@@ -10,6 +10,7 @@ env:
   APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
   APP_BUNDLE_ID: ${{ secrets.APP_BUNDLE_ID }}
   APPLE_APP_ID: ${{ secrets.APPLE_APP_ID }}
+  PLATFORM: MAC_OS
 
 jobs:
   deploy_macos:
@@ -31,7 +32,7 @@ jobs:
       - name: "Install the Apple provisioning profile(MAC_APP_STORE)"
         run: |
           app-store-connect fetch-signing-files "$APP_BUNDLE_ID" \
-            --platform MAC_OS \
+            --platform $PLATFORM \
             --type MAC_APP_STORE \
             --certificate-key=@file:$RUNNER_TEMP/cert_key \
             --create
@@ -62,7 +63,7 @@ jobs:
       - name: Build macOS app
         working-directory: packages/desktop
         run: |
-          build_number=$(app-store-connect get-latest-build-number $APPLE_APP_ID --platform=MAC_OS)
+          build_number=$(app-store-connect get-latest-build-number $APPLE_APP_ID --platform=$PLATFORM)
           new_build_number=$((build_number + 1))
           flutter build macos --build-number=$new_build_number
 
