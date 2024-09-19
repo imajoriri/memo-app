@@ -22,13 +22,15 @@
       "name": "mobile",
       "cwd": "packages/mobile",
       "request": "launch",
-      "type": "dart"
+      "type": "dart",
+      "args": ["--dart-define-from-file=dart_defines/dev.env"]
     },
     {
       "name": "mobile (release mode)",
       "cwd": "packages/mobile",
       "request": "launch",
-      "type": "dart"
+      "type": "dart",
+      "args": ["--dart-define-from-file=dart_defines/prod.env"]
     }
   ]
 }
