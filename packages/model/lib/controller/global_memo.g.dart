@@ -6,9 +6,9 @@ part of 'global_memo.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$globalMemoHash() => r'5758979f477df8e80fa75aeae0d38612d0fef5c8';
+String _$globalMemoHash() => r'98a7101b068aaf445ef2310669242b415b6b41b2';
 
-/// グローバルなメモを管理するController。
+/// Controller。
 ///
 /// Copied from [GlobalMemo].
 @ProviderFor(GlobalMemo)
