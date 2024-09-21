@@ -5,7 +5,6 @@ import 'package:firebase_core/firebase_core.dart'
     show Firebase, FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show TargetPlatform, defaultTargetPlatform, kIsWeb, kReleaseMode;
-import 'systems/flavor.dart';
 
 Future<void> initializeFirebase() async {
   await Firebase.initializeApp(
@@ -24,7 +23,7 @@ Future<void> initializeFirebase() async {
 /// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
-    const flavorEnv = String.fromEnvironment('flavor');
+    const isProd = kReleaseMode;
     if (kIsWeb) {
       throw UnsupportedError(
         'DefaultFirebaseOptions have not been configured for web - '
@@ -38,9 +37,9 @@ class DefaultFirebaseOptions {
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
       case TargetPlatform.iOS:
-        return flavorEnv == Flavor.prod.name ? prod : dev;
+        return isProd ? prod : dev;
       case TargetPlatform.macOS:
-        return flavorEnv == Flavor.prod.name ? prod : dev;
+        return isProd ? prod : dev;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
