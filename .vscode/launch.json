@@ -19,18 +19,17 @@
       "args": ["--dart-define-from-file=dart_defines/prod.env"]
     },
     {
-      "name": "mobile",
+      "name": "mobile (dev)",
       "cwd": "packages/mobile",
       "request": "launch",
-      "type": "dart",
-      "args": ["--dart-define-from-file=dart_defines/dev.env"]
+      "type": "dart"
     },
     {
       "name": "mobile (release mode)",
       "cwd": "packages/mobile",
       "request": "launch",
       "type": "dart",
-      "args": ["--dart-define-from-file=dart_defines/prod.env"]
+      "args": ["--release"]
     }
   ]
 }
