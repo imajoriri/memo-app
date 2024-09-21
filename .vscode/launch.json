@@ -8,15 +8,14 @@
       "name": "desktop (dev)",
       "cwd": "packages/desktop",
       "request": "launch",
-      "type": "dart",
-      "args": ["--dart-define-from-file=dart_defines/dev.env"]
+      "type": "dart"
     },
     {
       "name": "desktop (release mode)",
       "cwd": "packages/desktop",
       "request": "launch",
       "type": "dart",
-      "args": ["--dart-define-from-file=dart_defines/prod.env"]
+      "args": ["--release"]
     },
     {
       "name": "mobile (dev)",
