@@ -34,7 +34,8 @@ jobs:
             --platform $PLATFORM \
             --type IOS_APP_STORE \
             --certificate-key=@file:$RUNNER_TEMP/cert_key \
-            --create
+            --create \
+            --verbose
 
       - name: "Install the Certificates"
         run: |
