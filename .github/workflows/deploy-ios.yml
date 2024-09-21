@@ -30,13 +30,11 @@ jobs:
 
       - name: "Install the Apple provisioning profile"
         run: |
-          echo $APP_BUNDLE_ID
           app-store-connect fetch-signing-files "$APP_BUNDLE_ID" \
             --platform $PLATFORM \
             --type IOS_APP_STORE \
             --certificate-key=@file:$RUNNER_TEMP/cert_key \
-            --create \
-            --verbose
+            --create
 
       - name: "Install the Certificates"
         run: |
