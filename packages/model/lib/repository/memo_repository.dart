@@ -1,11 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
+import 'package:model/model/memo.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'memo_repository.g.dart';
-
-const collectionPrefix = kReleaseMode ? '' : 'dev_';
 
 @riverpod
 MemoRepository memoRepository(MemoRepositoryRef ref) =>
@@ -17,54 +15,65 @@ class MemoRepository {
   });
   final Ref ref;
 
-  Future<String> fetchMemo() async {
-    final result = await FirebaseFirestore.instance
-        .collection('${collectionPrefix}users')
-        .doc("test")
-        .get();
-    if (result.exists) {
-      final data = result.data() as Map<String, dynamic>;
-      final content = data["content"] as String?;
-      return content ?? '';
-    }
-    return '';
-  }
-
-  Stream<
-      ({
-        String content,
-        bool isLocalChange,
-      })> stream() {
+  /// 最新のメモを1件取得するStream。
+  ///
+  /// 1件もない場合は、nullを返す。
+  Stream<Memo?> latest(
+    String userId,
+  ) {
     return FirebaseFirestore.instance
-        .collection('${collectionPrefix}users')
-        .doc("test")
+        .collection('users')
+        .doc(userId)
+        .collection("memos")
+        .orderBy("createdAt", descending: true)
+        .limit(1)
         .snapshots()
-        .map((event) {
-      final content = event.data()?['content'] as String?;
-      return (
-        content: content ?? '',
-        isLocalChange: event.metadata.hasPendingWrites,
-      );
+        .map((snapshot) {
+      if (snapshot.docs.isEmpty) {
+        return null;
+      }
+      return Memo.fromDocument(snapshot.docs.first);
     });
   }
 
-  Future<String> fetch() async {
-    final result = await FirebaseFirestore.instance
-        .collection('${collectionPrefix}users')
-        .doc("test")
+  /// 最新のメモを1件取得する。
+  ///
+  /// 1件もない場合は、nullを返す。
+  Future<Memo?> fetchLatest(String userId) async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection("memos")
+        .orderBy("createdAt", descending: true)
+        .limit(1)
         .get();
-    if (result.exists) {
-      final data = result.data() as Map<String, dynamic>;
-      final content = data["content"] as String?;
-      return content ?? '';
+    if (snapshot.docs.isEmpty) {
+      return null;
     }
-    return '';
+    return Memo.fromDocument(snapshot.docs.first);
   }
 
-  Future<void> updateMemo(String content) async {
+  Future<void> addMemo({
+    required String userId,
+    required Memo memo,
+  }) async {
     await FirebaseFirestore.instance
-        .collection('${collectionPrefix}users')
-        .doc("test")
-        .set({'content': content});
+        .collection('users')
+        .doc(userId)
+        .collection("memos")
+        .doc(memo.id)
+        .set(memo.toJson());
+  }
+
+  Future<void> updateMemo({
+    required String userId,
+    required Memo memo,
+  }) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection("memos")
+        .doc(memo.id)
+        .set(memo.toJson());
   }
 }

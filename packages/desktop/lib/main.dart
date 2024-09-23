@@ -4,7 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:logger/web.dart';
-import 'package:model/controller/global_memo.dart';
+import 'package:model/controller/latest_memo.dart';
 import 'package:model/firebase_options.dart';
 
 @pragma('vm:entry-point')
@@ -51,7 +51,7 @@ void panel() async {
                 border: OutlineInputBorder(),
               ),
               onSubmitted: (value) {
-                ref.read(globalMemoProvider.notifier).addToBottom(value);
+                ref.read(latestMemoProvider.notifier).addToBottom(value);
                 textEditingController.clear();
                 focusNode.requestFocus();
               },
@@ -129,18 +129,20 @@ class MyHomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final textEditingController = TextEditingController();
-    ref.listen(globalMemoProvider, (previous, next) {
-      if (next.valueOrNull != textEditingController.text &&
-          next.valueOrNull?.isNotEmpty == true) {
-        textEditingController.text = next.requireValue;
+    final textEditingController = useTextEditingController();
+    ref.listen(latestMemoProvider, (previous, next) {
+      final content = next.valueOrNull?.content;
+      if (content != textEditingController.text) {
+        textEditingController.text = content!;
       }
     });
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Flutter Demo Home Page'),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          ref.read(latestMemoProvider.notifier).createMemo();
+        },
+        child: const Icon(Icons.add),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -149,7 +151,7 @@ class MyHomePage extends HookConsumerWidget {
           expands: true,
           maxLines: null,
           onChanged: (value) {
-            ref.read(globalMemoProvider.notifier).updateMemo(value);
+            ref.read(latestMemoProvider.notifier).updateMemo(value);
           },
         ),
       ),

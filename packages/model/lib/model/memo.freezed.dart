@@ -14,10 +14,19 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
+Memo _$MemoFromJson(Map<String, dynamic> json) {
+  return _Memo.fromJson(json);
+}
+
 /// @nodoc
 mixin _$Memo {
+  String get id => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
+  @TimestampConverter()
   DateTime get createdAt => throw _privateConstructorUsedError;
+
+  /// Serializes this Memo to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
   /// Create a copy of Memo
   /// with the given fields replaced by the non-null parameter values.
@@ -30,7 +39,8 @@ abstract class $MemoCopyWith<$Res> {
   factory $MemoCopyWith(Memo value, $Res Function(Memo) then) =
       _$MemoCopyWithImpl<$Res, Memo>;
   @useResult
-  $Res call({String content, DateTime createdAt});
+  $Res call(
+      {String id, String content, @TimestampConverter() DateTime createdAt});
 }
 
 /// @nodoc
@@ -48,10 +58,15 @@ class _$MemoCopyWithImpl<$Res, $Val extends Memo>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? content = null,
     Object? createdAt = null,
   }) {
     return _then(_value.copyWith(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       content: null == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
@@ -71,7 +86,8 @@ abstract class _$$MemoImplCopyWith<$Res> implements $MemoCopyWith<$Res> {
       __$$MemoImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String content, DateTime createdAt});
+  $Res call(
+      {String id, String content, @TimestampConverter() DateTime createdAt});
 }
 
 /// @nodoc
@@ -86,10 +102,15 @@ class __$$MemoImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? id = null,
     Object? content = null,
     Object? createdAt = null,
   }) {
     return _then(_$MemoImpl(
+      id: null == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as String,
       content: null == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
@@ -103,18 +124,27 @@ class __$$MemoImplCopyWithImpl<$Res>
 }
 
 /// @nodoc
-
+@JsonSerializable()
 class _$MemoImpl implements _Memo {
-  const _$MemoImpl({required this.content, required this.createdAt});
+  const _$MemoImpl(
+      {required this.id,
+      required this.content,
+      @TimestampConverter() required this.createdAt});
 
+  factory _$MemoImpl.fromJson(Map<String, dynamic> json) =>
+      _$$MemoImplFromJson(json);
+
+  @override
+  final String id;
   @override
   final String content;
   @override
+  @TimestampConverter()
   final DateTime createdAt;
 
   @override
   String toString() {
-    return 'Memo(content: $content, createdAt: $createdAt)';
+    return 'Memo(id: $id, content: $content, createdAt: $createdAt)';
   }
 
   @override
@@ -122,13 +152,15 @@ class _$MemoImpl implements _Memo {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$MemoImpl &&
+            (identical(other.id, id) || other.id == id) &&
             (identical(other.content, content) || other.content == content) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, content, createdAt);
+  int get hashCode => Object.hash(runtimeType, id, content, createdAt);
 
   /// Create a copy of Memo
   /// with the given fields replaced by the non-null parameter values.
@@ -137,16 +169,29 @@ class _$MemoImpl implements _Memo {
   @pragma('vm:prefer-inline')
   _$$MemoImplCopyWith<_$MemoImpl> get copyWith =>
       __$$MemoImplCopyWithImpl<_$MemoImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$MemoImplToJson(
+      this,
+    );
+  }
 }
 
 abstract class _Memo implements Memo {
   const factory _Memo(
-      {required final String content,
-      required final DateTime createdAt}) = _$MemoImpl;
+      {required final String id,
+      required final String content,
+      @TimestampConverter() required final DateTime createdAt}) = _$MemoImpl;
 
+  factory _Memo.fromJson(Map<String, dynamic> json) = _$MemoImpl.fromJson;
+
+  @override
+  String get id;
   @override
   String get content;
   @override
+  @TimestampConverter()
   DateTime get createdAt;
 
   /// Create a copy of Memo
