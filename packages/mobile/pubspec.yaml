@@ -19,6 +19,7 @@ dependencies:
   flutter_quill: ^10.7.5
 
   model:
+  widgets:
 
 dev_dependencies:
   flutter_test:

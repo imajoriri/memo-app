@@ -1,13 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_quill/flutter_quill.dart';
-import 'package:flutter_quill/quill_delta.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/web.dart';
 import 'package:model/firebase_options.dart';
 import 'package:model/controller/latest_memo.dart';
+import 'package:widgets/text_editor/rich_text_editor.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -75,21 +71,18 @@ class MyHomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final textEditingController = useTextEditingController();
+    final controller = useRichTextEditorController();
     ref.listen(latestMemoProvider, (previous, next) {
       final content = next.valueOrNull?.content;
-      if (content != textEditingController.text) {
-        textEditingController.text = content!;
+      // 変更があった時のみ更新しないと、カーソルの位置がずれる。
+      if (!controller.isSame(content ?? '')) {
+        controller.content = content ?? '';
       }
     });
 
-    final ops = jsonDecode(
-        r'[{"insert": "https://hoge.com", "attributes": {"link": "https://hoge.com"}}, {"insert": "\n"}]');
-    final controller = QuillController(
-      document: Document.fromDelta(Delta.fromJson(ops)),
-      selection: const TextSelection.collapsed(offset: 0),
-    );
-
+    controller.addListener(() {
+      ref.read(latestMemoProvider.notifier).updateMemo(controller.content);
+    });
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -97,25 +90,14 @@ class MyHomePage extends HookConsumerWidget {
         },
         child: const Icon(Icons.add),
       ),
-      body: SafeArea(
-        child: QuillEditor.basic(
-          controller: controller,
-          configurations: const QuillEditorConfigurations(
-            expands: true,
-            padding: EdgeInsets.all(16),
+      body: Column(
+        children: [
+          Expanded(
+            child: RichTextEditor(
+              controller: controller,
+            ),
           ),
-        ),
-        // child: Padding(
-        //   padding: const EdgeInsets.all(8.0),
-        //   child: TextField(
-        //     controller: textEditingController,
-        //     expands: true,
-        //     maxLines: null,
-        //     onChanged: (value) {
-        //       ref.read(latestMemoProvider.notifier).updateMemo(value);
-        //     },
-        //   ),
-        // ),
+        ],
       ),
     );
   }
