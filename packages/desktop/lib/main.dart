@@ -1,17 +1,12 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_quill/flutter_quill.dart';
-import 'package:flutter_quill/quill_delta.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:logger/web.dart';
 import 'package:model/controller/latest_memo.dart';
 import 'package:model/firebase_options.dart';
-import 'package:model/systems/launch_url.dart';
-import 'package:widgets/async/url_future_builder.dart';
+import 'package:widgets/text_editor/rich_text_editor.dart';
 
 @pragma('vm:entry-point')
 void panel() async {
@@ -135,24 +130,17 @@ class MyHomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final textEditingController = useTextEditingController();
+    final controller = useRichTextEditorController();
     ref.listen(latestMemoProvider, (previous, next) {
       final content = next.valueOrNull?.content;
-      if (content != textEditingController.text) {
-        textEditingController.text = content!;
+      // 変更があった時のみ更新しないと、カーソルの位置がずれる。
+      if (!controller.isSame(content ?? '')) {
+        controller.content = content ?? '';
       }
     });
 
-    // https://hoge.com を表示する。
-    final ops = jsonDecode(
-        r'[{"insert": "https://hoge2.com", "attributes": {"link": "https://hoge.com"}}, {"insert": "\n"}]');
-    final controller = QuillController(
-      document: Document.fromDelta(Delta.fromJson(ops)),
-      selection: const TextSelection.collapsed(offset: 0),
-    );
     controller.addListener(() {
-      // print(controller.document.toDelta().toJson());
-      // print(controller.pastePlainText);
+      ref.read(latestMemoProvider.notifier).updateMemo(controller.content);
     });
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -163,116 +151,12 @@ class MyHomePage extends HookConsumerWidget {
       ),
       body: Column(
         children: [
-          QuillSimpleToolbar(
-            controller: controller,
-            configurations: const QuillSimpleToolbarConfigurations(),
-          ),
           Expanded(
-            child: QuillEditor.basic(
+            child: RichTextEditor(
               controller: controller,
-              configurations: QuillEditorConfigurations(
-                expands: true,
-                customActions: {
-                  PasteTextIntent: CallbackAction(onInvoke: (intent) async {
-                    final text = await Clipboard.getData(Clipboard.kTextPlain);
-                    // textがurlかどうか。
-                    final url = Uri.tryParse(text?.text ?? '');
-                    if (url != null && url.hasAbsolutePath) {
-                      _createUrlPreview(
-                        url: url.toString(),
-                        controller: controller,
-                      );
-                      return true;
-                    }
-                    controller.clipboardPaste();
-                    return null;
-                  }),
-                },
-                padding: const EdgeInsets.all(16),
-                spaceShortcutEvents: standardSpaceShorcutEvents,
-                characterShortcutEvents: standardCharactersShortcutEvents,
-                embedBuilders: [UrlPreviewEmbedBuilder()],
-              ),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Future<void> _createUrlPreview({
-    required String url,
-    required QuillController controller,
-  }) async {
-    final block = BlockEmbed.custom(
-      UrlPreviewBlockEmbed.fromUrl(url),
-    );
-    final index = controller.selection.baseOffset;
-    final length = controller.selection.extentOffset - index;
-
-    controller.replaceText(index, length, block, null);
-  }
-}
-
-class UrlPreviewBlockEmbed extends CustomBlockEmbed {
-  final String url;
-
-  UrlPreviewBlockEmbed.fromUrl(this.url) : super('url_preview', url);
-
-  Document get document => Document.fromJson(jsonDecode(data));
-}
-
-class UrlPreviewEmbedBuilder extends EmbedBuilder {
-  @override
-  String get key => 'url_preview';
-
-  @override
-  String toPlainText(Embed node) => node.value.data;
-
-  @override
-  bool get expanded => false;
-
-  @override
-  Widget build(
-    BuildContext context,
-    QuillController controller,
-    Embed node,
-    bool readOnly,
-    bool inline,
-    TextStyle textStyle,
-  ) {
-    return GestureDetector(
-      onTap: () {
-        launchUrl(Uri.parse(node.value.data));
-      },
-      child: FocusableActionDetector(
-        mouseCursor: SystemMouseCursors.click,
-        child: Container(
-          color: Colors.red,
-          alignment: Alignment.centerLeft,
-          // TODO: 横幅目一杯に広がってしまうのを防ぐ。
-          child: UrlFutureBuilder(
-            url: Uri.parse(node.value.data),
-            data: (ogp) => Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (ogp.iconUrl != null)
-                  Image.network(
-                    ogp.iconUrl!,
-                    width: 16,
-                    height: 16,
-                  ),
-                const SizedBox(width: 8),
-                Text(
-                  ogp.title ?? '',
-                  style: textStyle,
-                ),
-              ],
-            ),
-            loading: () => const CircularProgressIndicator(),
-            error: (e, s) => Text(e.toString()),
-          ),
-        ),
       ),
     );
   }
