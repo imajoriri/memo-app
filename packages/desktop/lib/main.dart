@@ -11,6 +11,7 @@ import 'package:logger/web.dart';
 import 'package:model/controller/latest_memo.dart';
 import 'package:model/firebase_options.dart';
 import 'package:model/systems/launch_url.dart';
+import 'package:widgets/async/url_future_builder.dart';
 
 @pragma('vm:entry-point')
 void panel() async {
@@ -226,6 +227,9 @@ class UrlPreviewEmbedBuilder extends EmbedBuilder {
   String get key => 'url_preview';
 
   @override
+  String toPlainText(Embed node) => node.value.data;
+
+  @override
   Widget build(
     BuildContext context,
     QuillController controller,
@@ -234,21 +238,33 @@ class UrlPreviewEmbedBuilder extends EmbedBuilder {
     bool inline,
     TextStyle textStyle,
   ) {
-    return Material(
-      color: Colors.transparent,
-      child: ListTile(
-        title: Text(
-          node.value.data,
-          maxLines: 3,
-          overflow: TextOverflow.ellipsis,
-        ),
-        onTap: () {
-          launchUrl(Uri.parse(node.value.data));
-        },
-        leading: const Icon(Icons.notes),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-          side: const BorderSide(color: Colors.grey),
+    return GestureDetector(
+      onTap: () {
+        launchUrl(Uri.parse(node.value.data));
+      },
+      child: FocusableActionDetector(
+        mouseCursor: SystemMouseCursors.click,
+        child: Container(
+          alignment: Alignment.centerLeft,
+          child: UrlFutureBuilder(
+            url: Uri.parse(node.value.data),
+            data: (ogp) => Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (ogp.iconUrl != null)
+                  Image.network(
+                    ogp.iconUrl!,
+                    width: 16,
+                    height: 16,
+                  ),
+                Text(
+                  ogp.title ?? '',
+                ),
+              ],
+            ),
+            loading: () => const CircularProgressIndicator(),
+            error: (e, s) => Text(e.toString()),
+          ),
         ),
       ),
     );
