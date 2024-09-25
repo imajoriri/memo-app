@@ -4,59 +4,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:flutter_quill/quill_delta.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:widgets/async/url_future_builder.dart';
-
-RichTextEditorController useRichTextEditorController() {
-  return use(const _RichTextEditorControllerHook());
-}
-
-class _RichTextEditorControllerHook extends Hook<RichTextEditorController> {
-  const _RichTextEditorControllerHook();
-
-  @override
-  _RichTextEditorControllerHookState createState() =>
-      _RichTextEditorControllerHookState();
-}
-
-class _RichTextEditorControllerHookState
-    extends HookState<RichTextEditorController, _RichTextEditorControllerHook> {
-  @override
-  void initHook() {
-    super.initHook();
-  }
-
-  @override
-  RichTextEditorController build(BuildContext context) {
-    return RichTextEditorController(
-      document: Document(),
-      selection: const TextSelection.collapsed(offset: 0),
-    );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-}
-
-class RichTextEditorController extends QuillController {
-  RichTextEditorController({
-    required super.document,
-    required super.selection,
-  });
-
-  String get content => jsonEncode(document.toDelta().toJson());
-
-  bool isSame(String content) => this.content == content;
-
-  set content(String content) {
-    document = Document.fromDelta(Delta.fromJson(jsonDecode(content)));
-  }
-}
+import 'package:widgets/text_editor/rich_text_editor_controller.dart';
 
 class RichTextEditor extends StatelessWidget {
   const RichTextEditor({
@@ -139,9 +90,10 @@ class _UrlPreviewEmbedBuilder extends EmbedBuilder {
     bool inline,
     TextStyle textStyle,
   ) {
+    final url = node.value.data;
     return GestureDetector(
       onTap: () {
-        launchUrl(Uri.parse(node.value.data));
+        launchUrl(Uri.parse(url));
       },
       child: FocusableActionDetector(
         mouseCursor: SystemMouseCursors.click,
@@ -149,7 +101,8 @@ class _UrlPreviewEmbedBuilder extends EmbedBuilder {
           alignment: Alignment.centerLeft,
           // TODO: 横幅目一杯に広がってしまうのを防ぐ。
           child: UrlFutureBuilder(
-            url: Uri.parse(node.value.data),
+            key: Key(url),
+            url: Uri.parse(url),
             data: (ogp) => Row(
               mainAxisSize: MainAxisSize.min,
               children: [

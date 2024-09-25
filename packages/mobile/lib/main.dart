@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/web.dart';
 import 'package:model/firebase_options.dart';
 import 'package:model/controller/latest_memo.dart';
 import 'package:widgets/text_editor/rich_text_editor.dart';
+import 'package:widgets/text_editor/rich_text_editor_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -73,16 +77,29 @@ class MyHomePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = useRichTextEditorController();
     ref.listen(latestMemoProvider, (previous, next) {
-      final content = next.valueOrNull?.content;
+      final content = next.valueOrNull?.content ?? '';
       // 変更があった時のみ更新しないと、カーソルの位置がずれる。
-      if (!controller.isSame(content ?? '')) {
-        controller.content = content ?? '';
+      if (!controller.isSame(content)) {
+        controller.content = content;
       }
     });
 
-    controller.addListener(() {
-      ref.read(latestMemoProvider.notifier).updateMemo(controller.content);
-    });
+    Timer? debounce;
+    useEffect(() {
+      controller.addListener(() {
+        if (debounce?.isActive ?? false) {
+          debounce?.cancel();
+        }
+
+        debounce = Timer(const Duration(milliseconds: 400), () {
+          ref.read(latestMemoProvider.notifier).updateMemo(controller.content);
+        });
+      });
+      return () {
+        controller.removeListener(() {});
+      };
+    }, []);
+
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -90,14 +107,16 @@ class MyHomePage extends HookConsumerWidget {
         },
         child: const Icon(Icons.add),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: RichTextEditor(
-              controller: controller,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: RichTextEditor(
+                controller: controller,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

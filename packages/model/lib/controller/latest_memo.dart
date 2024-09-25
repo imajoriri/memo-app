@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 part 'latest_memo.g.dart';
 
 // TODO
-const userId = 'test3';
+const userId = 'test4';
 
 /// 最新のメモを取得する。
 ///
@@ -16,6 +16,7 @@ class LatestMemo extends _$LatestMemo {
   @override
   Stream<Memo?> build() {
     final repository = ref.watch(memoRepositoryProvider);
+
     return repository.latest(userId).map((memo) {
       if (memo == null) {
         // TODO: memoがnullの時なぜか2回作成されている。
@@ -44,8 +45,11 @@ class LatestMemo extends _$LatestMemo {
   /// メモを更新する。
   Future<void> updateMemo(String content) async {
     final memo = state.valueOrNull;
+    if (memo == null) {
+      return;
+    }
     await ref.read(memoRepositoryProvider).updateMemo(
-          memo: memo!.copyWith(content: content),
+          memo: memo.copyWith(content: content),
           userId: userId,
         );
   }
