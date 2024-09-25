@@ -11,12 +11,14 @@ class UrlPreview {
     required this.title,
     required this.description,
     required this.imageUrl,
+    required this.siteName,
     required this.iconUrl,
   });
 
   final String? title;
   final String? description;
   final String? imageUrl;
+  final String? siteName;
   final String? iconUrl;
 }
 
@@ -61,6 +63,7 @@ class UrlFutureBuilder extends HookWidget {
     String description = '';
     String? imageUrl;
     String? iconUrl;
+    String? siteName;
 
     // metaタグから取得する。
     document.getElementsByTagName('meta').forEach((dom.Element element) {
@@ -78,6 +81,11 @@ class UrlFutureBuilder extends HookWidget {
       }
       if (element.attributes['name'] == 'description') {
         description = element.attributes['content'] ?? '';
+      }
+
+      // siteName
+      if (element.attributes['property'] == 'og:site_name') {
+        siteName = element.attributes['content'];
       }
 
       // image
@@ -114,6 +122,7 @@ class UrlFutureBuilder extends HookWidget {
       description: description,
       imageUrl: imageUrl,
       iconUrl: iconUrl,
+      siteName: siteName,
     );
   }
 

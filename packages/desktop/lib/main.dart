@@ -230,6 +230,9 @@ class UrlPreviewEmbedBuilder extends EmbedBuilder {
   String toPlainText(Embed node) => node.value.data;
 
   @override
+  bool get expanded => false;
+
+  @override
   Widget build(
     BuildContext context,
     QuillController controller,
@@ -245,7 +248,9 @@ class UrlPreviewEmbedBuilder extends EmbedBuilder {
       child: FocusableActionDetector(
         mouseCursor: SystemMouseCursors.click,
         child: Container(
+          color: Colors.red,
           alignment: Alignment.centerLeft,
+          // TODO: 横幅目一杯に広がってしまうのを防ぐ。
           child: UrlFutureBuilder(
             url: Uri.parse(node.value.data),
             data: (ogp) => Row(
@@ -257,8 +262,10 @@ class UrlPreviewEmbedBuilder extends EmbedBuilder {
                     width: 16,
                     height: 16,
                   ),
+                const SizedBox(width: 8),
                 Text(
                   ogp.title ?? '',
+                  style: textStyle,
                 ),
               ],
             ),
