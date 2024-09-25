@@ -16,6 +16,7 @@ dependencies:
   # Riverpod
   hooks_riverpod: ^3.0.0-dev.3
   flutter_hooks: ^0.20.5
+  flutter_quill: ^10.7.5
 
   model:
 

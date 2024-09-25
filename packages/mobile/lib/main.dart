@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/quill_delta.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/web.dart';
 import 'package:model/firebase_options.dart';
@@ -79,6 +83,13 @@ class MyHomePage extends HookConsumerWidget {
       }
     });
 
+    final ops = jsonDecode(
+        r'[{"insert": "https://hoge.com", "attributes": {"link": "https://hoge.com"}}, {"insert": "\n"}]');
+    final controller = QuillController(
+      document: Document.fromDelta(Delta.fromJson(ops)),
+      selection: const TextSelection.collapsed(offset: 0),
+    );
+
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -86,16 +97,25 @@ class MyHomePage extends HookConsumerWidget {
         },
         child: const Icon(Icons.add),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: TextField(
-          controller: textEditingController,
-          expands: true,
-          maxLines: null,
-          onChanged: (value) {
-            ref.read(latestMemoProvider.notifier).updateMemo(value);
-          },
+      body: SafeArea(
+        child: QuillEditor.basic(
+          controller: controller,
+          configurations: const QuillEditorConfigurations(
+            expands: true,
+            padding: EdgeInsets.all(16),
+          ),
         ),
+        // child: Padding(
+        //   padding: const EdgeInsets.all(8.0),
+        //   child: TextField(
+        //     controller: textEditingController,
+        //     expands: true,
+        //     maxLines: null,
+        //     onChanged: (value) {
+        //       ref.read(latestMemoProvider.notifier).updateMemo(value);
+        //     },
+        //   ),
+        // ),
       ),
     );
   }
