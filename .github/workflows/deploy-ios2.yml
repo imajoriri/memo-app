@@ -43,8 +43,8 @@ jobs:
           xcrun altool --upload-app \
                        --type ios \
                        -f build/ios/ipa/*.ipa \
-                       --apiKey ${{ secrets.APPLE_API_KEY_BASE64 }} \
-                       --apiIssuer ${{ secrets.APPLE_API_ISSUER_ID_BASE64 }}
+                       --apiKey ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }} \
+                       --apiIssuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
 
       # - name: pod install
       #   run: |
