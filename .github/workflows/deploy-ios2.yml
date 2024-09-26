@@ -16,9 +16,9 @@ jobs:
   build:
     name: Build
     runs-on: macos-latest
-    # defaults:
-    #   run:
-    #     working-directory: packages/mobile/ios
+    defaults:
+      run:
+        working-directory: packages/mobile/ios
 
     steps:
       - name: Checkout
@@ -32,7 +32,7 @@ jobs:
       - name: flutter setup
         run: |
           dart pub global activate melos
-          melos bootstrap
+          melos bootstrap --sdk-path=/opt/hostedtoolcache/flutter/stable-${{ env.FLUTTER_VERSION }}-x64
 
       - name: pod install
         run: |
