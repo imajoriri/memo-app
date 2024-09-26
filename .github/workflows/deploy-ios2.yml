@@ -26,6 +26,11 @@ jobs:
 
       - uses: kuhnroyal/flutter-fvm-config-action@v2
 
+      - name: flutter setup
+        run: |
+          flutter pub global activate melos
+          melos bootstrap
+
       - name: pod install
         run: |
           pod install
