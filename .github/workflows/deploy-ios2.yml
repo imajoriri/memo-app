@@ -18,7 +18,7 @@ jobs:
     runs-on: macos-latest
     defaults:
       run:
-        working-directory: packages/mobile/ios
+        working-directory: packages/mobile
 
     steps:
       - name: Checkout
@@ -28,10 +28,6 @@ jobs:
         with:
           setup: true
           cache: true
-      - name: Print outputs
-        shell: bash
-        run: |
-          echo ${{ env.FLUTTER_ROOT }}
 
       - name: flutter setup
         run: |
@@ -40,11 +36,12 @@ jobs:
 
       - name: pod install
         run: |
+          cd ios
           pod install
 
       - name: Archive Project
         run: |
-          xcodebuild archive -project packages/mobile/ios/Runner.xcodeproj \
+          xcodebuild archive -project ios/Runner.xcodeproj \
                              -scheme Runner \
                              -sdk iphoneos \
                              -configuration Release \
