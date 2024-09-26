@@ -1,29 +1,26 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'latest_memo.dart';
+part of 'session.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$latestMemoHash() => r'ddceb2de2429ecbb492306054be192ee3b390752';
+String _$sessionHash() => r'2f5fe7add82706cdf50c6e364abc9a529307f680';
 
-/// 最新のメモを取得する。
+/// セッションを管理するコントローラー。
 ///
-/// 1件もない場合は、作成して返す。
-///
-/// Copied from [LatestMemo].
-@ProviderFor(LatestMemo)
-final latestMemoProvider =
-    AutoDisposeStreamNotifierProvider<LatestMemo, Memo?>.internal(
-  LatestMemo.new,
-  name: r'latestMemoProvider',
+/// Copied from [Session].
+@ProviderFor(Session)
+final sessionProvider = NotifierProvider<Session, String>.internal(
+  Session.new,
+  name: r'sessionProvider',
   debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$latestMemoHash,
+      const bool.fromEnvironment('dart.vm.product') ? null : _$sessionHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$LatestMemo = AutoDisposeStreamNotifier<Memo?>;
+typedef _$Session = Notifier<String>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, inference_failure_on_uninitialized_variable, inference_failure_on_function_return_type, inference_failure_on_untyped_parameter, deprecated_member_use_from_same_package

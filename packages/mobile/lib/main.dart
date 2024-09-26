@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/web.dart';
+import 'package:model/controller/session.dart';
 import 'package:model/firebase_options.dart';
 import 'package:model/controller/latest_memo.dart';
 import 'package:widgets/text_editor/rich_text_editor.dart';
@@ -76,11 +77,10 @@ class MyHomePage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = useRichTextEditorController();
+    final session = ref.watch(sessionProvider);
     ref.listen(latestMemoProvider, (previous, next) {
-      final content = next.valueOrNull?.content ?? '';
-      // 変更があった時のみ更新しないと、カーソルの位置がずれる。
-      if (!controller.isSame(content)) {
-        controller.content = content;
+      if (next.valueOrNull?.session != session) {
+        controller.content = next.valueOrNull?.content ?? '';
       }
     });
 

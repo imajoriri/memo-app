@@ -10,6 +10,7 @@ class Memo with _$Memo {
   const factory Memo({
     required String id,
     required String content,
+    @Default('') String session,
     @TimestampConverter() required DateTime createdAt,
   }) = _Memo;
 

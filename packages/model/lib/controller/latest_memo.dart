@@ -1,3 +1,4 @@
+import 'package:model/controller/session.dart';
 import 'package:model/model/memo.dart';
 import 'package:model/repository/memo_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -24,6 +25,7 @@ class LatestMemo extends _$LatestMemo {
           memo: Memo(
             id: const Uuid().v4(),
             content: '',
+            session: ref.read(sessionProvider),
             createdAt: DateTime.now(),
           ),
           userId: userId,
@@ -49,7 +51,10 @@ class LatestMemo extends _$LatestMemo {
       return;
     }
     await ref.read(memoRepositoryProvider).updateMemo(
-          memo: memo.copyWith(content: content),
+          memo: memo.copyWith(
+            content: content,
+            session: ref.read(sessionProvider),
+          ),
           userId: userId,
         );
   }
@@ -60,6 +65,7 @@ class LatestMemo extends _$LatestMemo {
           memo: Memo(
             id: const Uuid().v4(),
             content: '',
+            session: ref.read(sessionProvider),
             createdAt: DateTime.now(),
           ),
           userId: userId,

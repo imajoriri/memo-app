@@ -22,6 +22,7 @@ Memo _$MemoFromJson(Map<String, dynamic> json) {
 mixin _$Memo {
   String get id => throw _privateConstructorUsedError;
   String get content => throw _privateConstructorUsedError;
+  String get session => throw _privateConstructorUsedError;
   @TimestampConverter()
   DateTime get createdAt => throw _privateConstructorUsedError;
 
@@ -40,7 +41,10 @@ abstract class $MemoCopyWith<$Res> {
       _$MemoCopyWithImpl<$Res, Memo>;
   @useResult
   $Res call(
-      {String id, String content, @TimestampConverter() DateTime createdAt});
+      {String id,
+      String content,
+      String session,
+      @TimestampConverter() DateTime createdAt});
 }
 
 /// @nodoc
@@ -60,6 +64,7 @@ class _$MemoCopyWithImpl<$Res, $Val extends Memo>
   $Res call({
     Object? id = null,
     Object? content = null,
+    Object? session = null,
     Object? createdAt = null,
   }) {
     return _then(_value.copyWith(
@@ -70,6 +75,10 @@ class _$MemoCopyWithImpl<$Res, $Val extends Memo>
       content: null == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
+              as String,
+      session: null == session
+          ? _value.session
+          : session // ignore: cast_nullable_to_non_nullable
               as String,
       createdAt: null == createdAt
           ? _value.createdAt
@@ -87,7 +96,10 @@ abstract class _$$MemoImplCopyWith<$Res> implements $MemoCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {String id, String content, @TimestampConverter() DateTime createdAt});
+      {String id,
+      String content,
+      String session,
+      @TimestampConverter() DateTime createdAt});
 }
 
 /// @nodoc
@@ -104,6 +116,7 @@ class __$$MemoImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? content = null,
+    Object? session = null,
     Object? createdAt = null,
   }) {
     return _then(_$MemoImpl(
@@ -114,6 +127,10 @@ class __$$MemoImplCopyWithImpl<$Res>
       content: null == content
           ? _value.content
           : content // ignore: cast_nullable_to_non_nullable
+              as String,
+      session: null == session
+          ? _value.session
+          : session // ignore: cast_nullable_to_non_nullable
               as String,
       createdAt: null == createdAt
           ? _value.createdAt
@@ -129,6 +146,7 @@ class _$MemoImpl implements _Memo {
   const _$MemoImpl(
       {required this.id,
       required this.content,
+      this.session = '',
       @TimestampConverter() required this.createdAt});
 
   factory _$MemoImpl.fromJson(Map<String, dynamic> json) =>
@@ -139,12 +157,15 @@ class _$MemoImpl implements _Memo {
   @override
   final String content;
   @override
+  @JsonKey()
+  final String session;
+  @override
   @TimestampConverter()
   final DateTime createdAt;
 
   @override
   String toString() {
-    return 'Memo(id: $id, content: $content, createdAt: $createdAt)';
+    return 'Memo(id: $id, content: $content, session: $session, createdAt: $createdAt)';
   }
 
   @override
@@ -154,13 +175,14 @@ class _$MemoImpl implements _Memo {
             other is _$MemoImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.content, content) || other.content == content) &&
+            (identical(other.session, session) || other.session == session) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, content, createdAt);
+  int get hashCode => Object.hash(runtimeType, id, content, session, createdAt);
 
   /// Create a copy of Memo
   /// with the given fields replaced by the non-null parameter values.
@@ -182,6 +204,7 @@ abstract class _Memo implements Memo {
   const factory _Memo(
       {required final String id,
       required final String content,
+      final String session,
       @TimestampConverter() required final DateTime createdAt}) = _$MemoImpl;
 
   factory _Memo.fromJson(Map<String, dynamic> json) = _$MemoImpl.fromJson;
@@ -190,6 +213,8 @@ abstract class _Memo implements Memo {
   String get id;
   @override
   String get content;
+  @override
+  String get session;
   @override
   @TimestampConverter()
   DateTime get createdAt;
