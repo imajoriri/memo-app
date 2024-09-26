@@ -1,0 +1,58 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+env:
+  CERT_KEY: ${{ secrets.CERT_KEY }}
+  APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+  APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+  APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+  APP_BUNDLE_ID: ${{ secrets.APP_BUNDLE_ID }}
+  APPLE_APP_ID: ${{ secrets.APPLE_APP_ID }}
+  PLATFORM: IOS
+
+jobs:
+  build:
+    name: Build
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Archive Project
+        run: |
+          xcodebuild archive -project packages/mobile/ios/Runner.xcodeproj \
+                             -scheme Runner \
+                             -sdk iphoneos \
+                             -configuration Release \
+                             -archivePath Runner.xcarchive \
+                             CODE_SIGNING_ALLOWED=NO
+
+      - name: Create ExportOptions.plist
+        run: |
+          echo '${{ secrets.EXPORT_OPTIONS }}' > ExportOptions.plist
+
+      - name: Create Private Key
+        run: |
+          mkdir private_keys
+          echo -n '${{ secrets.APPLE_API_KEY_BASE64 }}' | base64 --decode > ./private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}.p8
+
+      - name: Export IPA
+        run: |
+          xcodebuild -exportArchive \
+                     -archivePath Runner.xcarchive \
+                     -exportOptionsPlist ExportOptions.plist \
+                     -exportPath app.ipa \
+                     -allowProvisioningUpdates \
+                     -authenticationKeyPath `pwd`/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}.p8 \
+                     -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }} \
+                     -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+
+      - name: Upload IPA to App Store Connect
+        run: |
+          xcrun altool --upload-app -f app.ipa/Runner.ipa \
+                       -u ${{ secrets.APPLE_ID }} \
+                       -p ${{ secrets.APP_SPECIFIC_PASSWORD }} \
+                       --type ios
