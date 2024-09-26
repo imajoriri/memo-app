@@ -34,17 +34,21 @@ jobs:
           dart pub global activate melos
           melos bootstrap --sdk-path=${{ env.FLUTTER_ROOT }}
 
+      # - name: build ipa
+      #   run: |
+      #     flutter build ipa
+
+      # - name: xrun altool
+      #   run: |
+      #     xcrun altool --upload-app \
+      #                  --type ios \
+      #                  -f build/ios/ipa/*.ipa \
+      #                  --apiKey ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }} \
+      #                  --apiIssuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+
       - name: build ipa
         run: |
-          flutter build ipa
-
-      - name: xrun altool
-        run: |
-          xcrun altool --upload-app \
-                       --type ios \
-                       -f build/ios/ipa/*.ipa \
-                       --apiKey ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }} \
-                       --apiIssuer ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          flutter build ipa --release --no-codesign
 
       # - name: pod install
       #   run: |
@@ -60,25 +64,25 @@ jobs:
       #                        -archivePath Runner.xcarchive \
       #                        CODE_SIGNING_ALLOWED=NO
 
-      # - name: Create ExportOptions.plist
-      #   run: |
-      #     echo '${{ secrets.EXPORT_OPTIONS }}' > ExportOptions.plist
+      - name: Create ExportOptions.plist
+        run: |
+          echo '${{ secrets.EXPORT_OPTIONS }}' > ExportOptions.plist
 
-      # - name: Create Private Key
-      #   run: |
-      #     mkdir private_keys
-      #     echo '${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}' > ./private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}.p8
+      - name: Create Private Key
+        run: |
+          mkdir private_keys
+          echo '${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}' > ./private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}.p8
 
-      # - name: Export IPA
-      #   run: |
-      #     xcodebuild -exportArchive \
-      #                -archivePath Runner.xcarchive \
-      #                -exportOptionsPlist ExportOptions.plist \
-      #                -exportPath app.ipa \
-      #                -allowProvisioningUpdates \
-      #                -authenticationKeyPath `pwd`/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}.p8 \
-      #                -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }} \
-      #                -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      - name: Export IPA
+        run: |
+          xcodebuild -exportArchive \
+                     -archivePath build/ios/archive/*.xcarchive \
+                     -exportOptionsPlist ExportOptions.plist \
+                     -exportPath app.ipa \
+                     -allowProvisioningUpdates \
+                     -authenticationKeyPath `pwd`/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}.p8 \
+                     -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }} \
+                     -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
 
       # - name: Upload IPA to App Store Connect
       #   run: |
