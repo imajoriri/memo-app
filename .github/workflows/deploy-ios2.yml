@@ -84,9 +84,9 @@ jobs:
                      -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }} \
                      -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
 
-      # - name: Upload IPA to App Store Connect
-      #   run: |
-      #     xcrun altool --upload-app -f app.ipa/Runner.ipa \
-      #                  -u ${{ secrets.APPLE_ID }} \
-      #                  -p ${{ secrets.APP_SPECIFIC_PASSWORD }} \
-      #                  --type ios
+      - name: Upload IPA to App Store Connect
+        run: |
+          xcrun altool --upload-app -f app.ipa/Runner.ipa \
+                       -u ${{ secrets.APPLE_ID }} \
+                       -p ${{ secrets.APP_SPECIFIC_PASSWORD }} \
+                       --type ios
