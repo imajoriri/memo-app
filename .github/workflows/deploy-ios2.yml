@@ -31,12 +31,12 @@ jobs:
       - name: Print outputs
         shell: bash
         run: |
-          echo ${{ env.FLUTTER_HOME }}
+          echo ${{ env.FLUTTER_ROOT }}
 
       - name: flutter setup
         run: |
           dart pub global activate melos
-          melos bootstrap --sdk-path=/opt/hostedtoolcache/flutter/stable-${{ env.FLUTTER_VERSION }}-x64
+          melos bootstrap --sdk-path=${{ env.FLUTTER_ROOT }}
 
       - name: pod install
         run: |
