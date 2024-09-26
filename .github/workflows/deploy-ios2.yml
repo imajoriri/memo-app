@@ -55,7 +55,7 @@ jobs:
       - name: Create Private Key
         run: |
           mkdir private_keys
-          echo -n '${{ secrets.APPLE_API_KEY_BASE64 }}' | base64 --decode > ./private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}.p8
+          echo '${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}' > ./private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}.p8
 
       - name: Export IPA
         run: |
