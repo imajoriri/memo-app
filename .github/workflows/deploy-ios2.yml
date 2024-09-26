@@ -24,6 +24,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - uses: kuhnroyal/flutter-fvm-config-action@v2
+
       - name: pod install
         run: |
           pod install
