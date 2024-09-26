@@ -16,9 +16,9 @@ jobs:
   build:
     name: Build
     runs-on: macos-latest
-    defaults:
-      run:
-        working-directory: packages/mobile/ios
+    # defaults:
+    #   run:
+    #     working-directory: packages/mobile/ios
 
     steps:
       - name: Checkout
