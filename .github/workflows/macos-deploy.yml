@@ -1,0 +1,79 @@
+name: Deploy macos2
+
+on:
+  workflow_dispatch:
+
+env:
+  CERT_KEY: ${{ secrets.CERT_KEY }}
+  APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+  APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+  APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+  APP_BUNDLE_ID: ${{ secrets.APP_BUNDLE_ID }}
+  APPLE_APP_ID: ${{ secrets.APPLE_APP_ID }}
+  PLATFORM: MAC_OS
+
+jobs:
+  build:
+    name: Deploy macos
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: packages/mobile
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: kuhnroyal/flutter-fvm-config-action@v2
+        with:
+          setup: true
+          cache: true
+
+      - name: Create ExportOptions.plist
+        run: |
+          echo '${{ secrets.EXPORT_OPTIONS }}' > ExportOptions.plist
+
+      - name: Create Private Key
+        run: |
+          mkdir private_keys
+          echo -n '${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_BASE64 }}' | base64 --decode > ./private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}.p8
+
+      - name: flutter setup
+        run: |
+          dart pub global activate melos
+          melos bootstrap --sdk-path=${{ env.FLUTTER_ROOT }}
+
+      - name: Build macOS app
+        run: |
+          xcodebuild \
+            -scheme Runner \
+            -workspace Runner.xcworkspace \
+            -configuration Runner \
+            archive \
+            -archivePath Runner.xcarchive
+
+      - name: Export macOS app
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath Runner.xcarchive \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath package\
+            -allowProvisioningUpdates \
+            -authenticationKeyPath `pwd`/private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}.p8 \
+            -authenticationKeyID ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }} \
+            -authenticationKeyIssuerID ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+
+      - name: Upload macOS app to App Store Connect
+        run: |
+          xcrun altool --upload-app -f package/Runner.pkg \
+            -u ${{ secrets.APPLE_ID }} \
+            -p ${{ secrets.APP_SPECIFIC_PASSWORD }} \
+            --type osx
+          # xcrun altool --upload-package app/Anote.pkg \
+          #   -t osx \
+          #   -u soccer.sana@icloud.com \
+          #   -p akyo-konb-rwom-ujzp \
+          #   --apple-id 6677026577 \
+          #   --bundle-id com.imajo.memo-app \
+          #   --bundle-version 4 \
+          #   --bundle-short-version-string 1.0.0
