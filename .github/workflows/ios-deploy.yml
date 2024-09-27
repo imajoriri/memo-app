@@ -1,6 +1,6 @@
 # 参考: https://zenn.dev/k_taro56/articles/how-to-build-ios-app-in-github-actions
 # archiveはflutter build ipa --release --no-codesignで作成
-name: Build
+name: Deploy ios
 
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ env:
 
 jobs:
   build:
-    name: Build
+    name: Deploy ios
     runs-on: macos-latest
     defaults:
       run:
