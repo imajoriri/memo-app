@@ -18,7 +18,7 @@ jobs:
     runs-on: macos-latest
     defaults:
       run:
-        working-directory: packages/mobile
+        working-directory: packages/desktop
 
     steps:
       - name: Checkout
@@ -42,6 +42,11 @@ jobs:
         run: |
           dart pub global activate melos
           melos bootstrap --sdk-path=${{ env.FLUTTER_ROOT }}
+
+      - name: pod install
+        run: |
+          cd macos
+          pod install
 
       - name: Build macOS app
         run: |
