@@ -15,6 +15,10 @@ env:
 jobs:
   deploy_macos:
     runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: packages/desktop
+
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4
