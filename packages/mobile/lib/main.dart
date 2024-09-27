@@ -81,6 +81,7 @@ class MyHomePage extends HookConsumerWidget {
     ref.listen(latestMemoProvider, (previous, next) {
       if (next.valueOrNull?.session != session) {
         controller.content = next.valueOrNull?.content ?? '';
+        // TODO: ここで更新された時に、addListenerで更新したくない。
       }
     });
 

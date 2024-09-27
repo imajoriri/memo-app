@@ -1,3 +1,5 @@
+# 参考: https://zenn.dev/k_taro56/articles/how-to-build-ios-app-in-github-actions
+# archiveはflutter build ipa --release --no-codesignで作成
 name: Build
 
 on:
@@ -86,7 +88,7 @@ jobs:
 
       - name: Upload IPA to App Store Connect
         run: |
-          xcrun altool --upload-app -f app.ipa/Runner.ipa \
+          xcrun altool --upload-app -f app.ipa/*.ipa \
                        -u ${{ secrets.APPLE_ID }} \
                        -p ${{ secrets.APP_SPECIFIC_PASSWORD }} \
                        --type ios
