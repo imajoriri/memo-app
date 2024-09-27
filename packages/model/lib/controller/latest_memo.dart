@@ -50,6 +50,12 @@ class LatestMemo extends _$LatestMemo {
     if (memo == null) {
       return;
     }
+
+    // 現在のcontentと一致する場合は何もしない。
+    if (memo.content == content) {
+      return;
+    }
+
     await ref.read(memoRepositoryProvider).updateMemo(
           memo: memo.copyWith(
             content: content,

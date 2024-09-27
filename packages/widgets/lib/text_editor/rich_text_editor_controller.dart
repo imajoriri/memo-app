@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:flutter_quill/quill_delta.dart';
 
 const useRichTextEditorController = _RichTextEditorControllerHookCreator();
 
@@ -62,6 +63,14 @@ class RichTextEditorController extends QuillController {
       clear();
       return;
     }
-    document = Document.fromJson(jsonDecode(content));
+
+    replaceText(
+      0,
+      0,
+      Delta.fromJson(jsonDecode(content)),
+      null,
+      // 無駄な更新が走らないように、addListenerを使わないようにする。
+      shouldNotifyListeners: false,
+    );
   }
 }
