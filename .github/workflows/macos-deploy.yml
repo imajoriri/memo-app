@@ -58,6 +58,7 @@ jobs:
 
       - name: Export macOS app
         run: |
+          flutter build macos --release
           xcodebuild -exportArchive \
             -archivePath Runner.xcarchive \
             -exportOptionsPlist ExportOptions.plist \
