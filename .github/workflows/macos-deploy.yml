@@ -70,15 +70,7 @@ jobs:
 
       - name: Upload macOS app to App Store Connect
         run: |
-          xcrun altool --upload-app -f package/Runner.pkg \
+          xcrun altool --upload-app -f package/*.pkg \
             -u ${{ secrets.APPLE_ID }} \
             -p ${{ secrets.APP_SPECIFIC_PASSWORD }} \
             --type osx
-          # xcrun altool --upload-package app/Anote.pkg \
-          #   -t osx \
-          #   -u soccer.sana@icloud.com \
-          #   -p akyo-konb-rwom-ujzp \
-          #   --apple-id 6677026577 \
-          #   --bundle-id com.imajo.memo-app \
-          #   --bundle-version 4 \
-          #   --bundle-short-version-string 1.0.0
