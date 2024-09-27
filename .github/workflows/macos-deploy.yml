@@ -49,6 +49,8 @@ jobs:
 
       - name: Build macOS app
         run: |
+          # TODO: flutter buildしないとxcodebuildでエラーになる。
+          # flutter buildで作成した.appをxcarchiveに変換するコマンドを見つけたい。
           flutter build macos --release
           xcodebuild \
             -scheme Runner \
