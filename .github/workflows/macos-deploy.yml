@@ -18,7 +18,7 @@ jobs:
     runs-on: macos-latest
     defaults:
       run:
-        working-directory: packages/desktop
+        working-directory: packages/desktop/macos
 
     steps:
       - name: Checkout
@@ -45,7 +45,6 @@ jobs:
 
       - name: pod install
         run: |
-          cd macos
           pod install
 
       - name: Build macOS app
