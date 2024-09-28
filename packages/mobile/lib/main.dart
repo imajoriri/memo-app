@@ -9,6 +9,7 @@ import 'package:model/firebase_options.dart';
 import 'package:model/controller/latest_memo.dart';
 import 'package:widgets/text_editor/rich_text_editor.dart';
 import 'package:widgets/text_editor/rich_text_editor_controller.dart';
+import 'package:widgets/text_editor/rich_text_editor_toolbar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -81,7 +82,6 @@ class MyHomePage extends HookConsumerWidget {
     ref.listen(latestMemoProvider, (previous, next) {
       if (next.valueOrNull?.session != session) {
         controller.content = next.valueOrNull?.content ?? '';
-        // TODO: ここで更新された時に、addListenerで更新したくない。
       }
     });
 
@@ -115,6 +115,9 @@ class MyHomePage extends HookConsumerWidget {
               child: RichTextEditor(
                 controller: controller,
               ),
+            ),
+            RichTextEditorToolbar(
+              controller: controller,
             ),
           ],
         ),
