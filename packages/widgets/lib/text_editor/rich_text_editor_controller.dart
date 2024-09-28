@@ -60,7 +60,13 @@ class RichTextEditorController extends QuillController {
 
   set content(String content) {
     if (content.isEmpty) {
-      clear();
+      replaceText(
+        0,
+        plainTextEditingValue.text.length - 1,
+        '',
+        const TextSelection.collapsed(offset: 0),
+        shouldNotifyListeners: false,
+      );
       return;
     }
 

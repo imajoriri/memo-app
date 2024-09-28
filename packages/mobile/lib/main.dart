@@ -79,9 +79,12 @@ class MyHomePage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = useRichTextEditorController();
     final session = ref.watch(sessionProvider);
+    final currentMemoId = useState<String?>(null);
     ref.listen(latestMemoProvider, (previous, next) {
-      if (next.valueOrNull?.session != session) {
-        controller.content = next.valueOrNull?.content ?? '';
+      final memo = next.valueOrNull;
+      if (memo?.session != session || memo?.id != currentMemoId.value) {
+        controller.content = memo?.content ?? '';
+        currentMemoId.value = memo?.id;
       }
     });
 
