@@ -9,6 +9,36 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:widgets/async/url_future_builder.dart';
 import 'package:widgets/text_editor/rich_text_editor_controller.dart';
 
+void _updateSelectionForKeyPhrase(
+    String phrase, Attribute attribute, QuillController controller) {
+  controller.replaceText(controller.selection.baseOffset - phrase.length,
+      phrase.length, '\n', null);
+  _moveCursor(-phrase.length, controller);
+  controller
+    ..formatSelection(attribute)
+    // Remove the added newline.
+    ..replaceText(controller.selection.baseOffset + 1, 1, '', null);
+}
+
+void _moveCursor(int chars, QuillController controller) {
+  final selection = controller.selection;
+  controller.updateSelection(
+      controller.selection.copyWith(
+          baseOffset: selection.baseOffset + chars,
+          extentOffset: selection.baseOffset + chars),
+      ChangeSource.local);
+}
+
+/// `[]`を入力したときに、チェックリストにするショートカット。
+// `handleFormatBlockStyleBySpaceEvent`(private method)を参考にしている。
+final SpaceShortcutEvent _formatCheckList = SpaceShortcutEvent(
+  character: "[]",
+  handler: (node, controller) {
+    _updateSelectionForKeyPhrase("[]", Attribute.unchecked, controller);
+    return true;
+  },
+);
+
 class RichTextEditor extends StatelessWidget {
   const RichTextEditor({
     super.key,
@@ -53,7 +83,10 @@ class RichTextEditor extends StatelessWidget {
           }),
         },
         padding: const EdgeInsets.all(16),
-        spaceShortcutEvents: standardSpaceShorcutEvents,
+        spaceShortcutEvents: [
+          ...standardSpaceShorcutEvents,
+          _formatCheckList,
+        ],
         characterShortcutEvents: standardCharactersShortcutEvents,
         embedBuilders: [
           _UrlPreviewEmbedBuilder(),
