@@ -10,15 +10,25 @@ const useRichTextEditorController = _RichTextEditorControllerHookCreator();
 class _RichTextEditorControllerHookCreator {
   const _RichTextEditorControllerHookCreator();
 
-  RichTextEditorController call({Document? document}) {
-    return use(_RichTextEditorControllerHook(document));
+  RichTextEditorController call({
+    Document? document,
+    ReplaceTextCallback? onReplaceText,
+  }) {
+    return use(_RichTextEditorControllerHook(
+      initialDocument: document,
+      onReplaceText: onReplaceText,
+    ));
   }
 }
 
 class _RichTextEditorControllerHook extends Hook<RichTextEditorController> {
-  const _RichTextEditorControllerHook(this.initialDocument);
+  const _RichTextEditorControllerHook({
+    this.initialDocument,
+    this.onReplaceText,
+  });
 
   final Document? initialDocument;
+  final ReplaceTextCallback? onReplaceText;
 
   @override
   _RichTextEditorControllerHookState createState() =>
@@ -30,6 +40,7 @@ class _RichTextEditorControllerHookState
   late final _controller = RichTextEditorController(
     document: hook.initialDocument ?? Document(),
     selection: const TextSelection.collapsed(offset: 0),
+    onReplaceText: hook.onReplaceText,
   );
 
   @override
@@ -52,6 +63,7 @@ class RichTextEditorController extends QuillController {
   RichTextEditorController({
     required super.document,
     required super.selection,
+    super.onReplaceText,
   });
 
   String get content => jsonEncode(document.toDelta().toJson());
@@ -60,23 +72,10 @@ class RichTextEditorController extends QuillController {
 
   set content(String content) {
     if (content.isEmpty) {
-      replaceText(
-        0,
-        plainTextEditingValue.text.length - 1,
-        '',
-        const TextSelection.collapsed(offset: 0),
-        shouldNotifyListeners: false,
-      );
+      clear();
       return;
     }
-
-    replaceText(
-      0,
-      document.length,
-      Delta.fromJson(jsonDecode(content)),
-      null,
-      // 無駄な更新が走らないように、addListenerを使わないようにする。
-      shouldNotifyListeners: false,
-    );
+    final delta = Delta.fromJson(jsonDecode(content));
+    document = Document.fromDelta(delta);
   }
 }

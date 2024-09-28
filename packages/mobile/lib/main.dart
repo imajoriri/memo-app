@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/web.dart';
 import 'package:model/controller/session.dart';
@@ -77,7 +76,18 @@ class MyHomePage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    Timer? debounce;
     final controller = useRichTextEditorController();
+    controller.onReplaceText = (index, len, data) {
+      if (debounce?.isActive ?? false) {
+        debounce?.cancel();
+      }
+
+      debounce = Timer(const Duration(milliseconds: 400), () {
+        ref.read(latestMemoProvider.notifier).updateMemo(controller.content);
+      });
+      return true;
+    };
     final session = ref.watch(sessionProvider);
     ref.listen(latestMemoProvider, (previous, next) {
       final previousMemoId = previous?.valueOrNull?.id;
@@ -86,22 +96,6 @@ class MyHomePage extends HookConsumerWidget {
         controller.content = memo?.content ?? '';
       }
     });
-
-    Timer? debounce;
-    useEffect(() {
-      controller.addListener(() {
-        if (debounce?.isActive ?? false) {
-          debounce?.cancel();
-        }
-
-        debounce = Timer(const Duration(milliseconds: 400), () {
-          ref.read(latestMemoProvider.notifier).updateMemo(controller.content);
-        });
-      });
-      return () {
-        controller.removeListener(() {});
-      };
-    }, []);
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
