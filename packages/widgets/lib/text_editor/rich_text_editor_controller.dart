@@ -66,7 +66,7 @@ class RichTextEditorController extends QuillController {
 
     replaceText(
       0,
-      0,
+      document.toDelta().toJson().length,
       Delta.fromJson(jsonDecode(content)),
       null,
       // 無駄な更新が走らないように、addListenerを使わないようにする。
