@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/web.dart';
 import 'package:model/controller/session.dart';
@@ -97,6 +98,25 @@ class MyHomePage extends HookConsumerWidget {
       }
     });
 
+    final focusNode = useFocusNode();
+    useOnAppLifecycleStateChange((pre, next) {
+      // アプリが再開した時に、メモの一番下の行にカーソルを移動する。
+      if (next == AppLifecycleState.resumed) {
+        focusNode.requestFocus();
+        controller.moveCursorToEnd();
+      }
+    });
+
+    // 初回起動時はカーソルを一番下に移動する
+    useEffect(
+      () {
+        focusNode.requestFocus();
+        controller.moveCursorToEnd();
+        return null;
+      },
+      const [],
+    );
+
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -110,6 +130,7 @@ class MyHomePage extends HookConsumerWidget {
             Expanded(
               child: RichTextEditor(
                 controller: controller,
+                focusNode: focusNode,
               ),
             ),
             RichTextEditorToolbar(

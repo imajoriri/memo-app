@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:widgets/async/url_future_builder.dart';
@@ -39,13 +40,15 @@ final SpaceShortcutEvent _formatCheckList = SpaceShortcutEvent(
   },
 );
 
-class RichTextEditor extends StatelessWidget {
+class RichTextEditor extends HookWidget {
   const RichTextEditor({
     super.key,
     required this.controller,
+    this.focusNode,
   });
 
   final RichTextEditorController controller;
+  final FocusNode? focusNode;
 
   Future<void> _createUrlPreview({
     required String url,
@@ -62,7 +65,9 @@ class RichTextEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveFocusNode = focusNode ?? useFocusNode();
     return QuillEditor.basic(
+      focusNode: effectiveFocusNode,
       controller: controller,
       configurations: QuillEditorConfigurations(
         expands: true,
