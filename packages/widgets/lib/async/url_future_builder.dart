@@ -135,29 +135,18 @@ class UrlFutureBuilder extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLoading = useState(true);
-    final errorState = useState<(Object, StackTrace)?>(null);
-    final ogp = useState<UrlPreview?>(null);
-    useEffect(() {
-      _fetchOgp(url).then((response) {
-        ogp.value = response;
-        isLoading.value = false;
-      }).catchError((e) {
-        errorState.value = (e, StackTrace.current);
-        isLoading.value = false;
-      });
-      return null;
-    }, const []);
+    // APIから取得したデータをキャッシュ(保存する)
+    final preview = useMemoized(() => _fetchOgp(url));
+    // キャッシュしたデータを取得する
+    final futureSnapshot = useFuture(preview);
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 200),
-      child: switch (isLoading.value) {
-        true => loading(),
-        false => switch (errorState.value) {
-            null => data(ogp.value!),
-            _ => error(errorState.value!, StackTrace.current),
-          },
-      },
+      child: futureSnapshot.connectionState == ConnectionState.waiting
+          ? loading()
+          : futureSnapshot.error != null
+              ? error(futureSnapshot.error!, futureSnapshot.stackTrace!)
+              : data(futureSnapshot.data!),
     );
   }
 }
