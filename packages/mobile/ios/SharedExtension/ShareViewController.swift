@@ -11,28 +11,39 @@ import Social
 import UniformTypeIdentifiers
 import FirebaseCore
 import FirebaseFirestore
+import Flutter
 
 class ShareViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
+    showFlutter()
 
-    FirebaseApp.configure()
+//    FirebaseApp.configure()
+//
+//    guard
+//      let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
+//      let itemProvider = extensionItem.attachments?.first else {
+//      self.close()
+//      return
+//    }
+//    checkUrlType(itemProvider: itemProvider)
+//    checkTextType(itemProvider: itemProvider)
+//
+//    // SwitUIでcloseボタン押した際に、モーダルを閉じる。
+//    NotificationCenter.default.addObserver(forName: NSNotification.Name("close"), object: nil, queue: nil) { _ in
+//       DispatchQueue.main.async {
+//          self.close()
+//       }
+//    }
+  }
 
-    guard
-      let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
-      let itemProvider = extensionItem.attachments?.first else {
-      self.close()
-      return
-    }
-    checkUrlType(itemProvider: itemProvider)
-    checkTextType(itemProvider: itemProvider)
-
-    // SwitUIでcloseボタン押した際に、モーダルを閉じる。
-    NotificationCenter.default.addObserver(forName: NSNotification.Name("close"), object: nil, queue: nil) { _ in
-       DispatchQueue.main.async {
-          self.close()
-       }
-    }
+  func showFlutter() {
+    let flutterEngine = FlutterEngine(name: "share exntension engine", project: nil)
+    flutterEngine.run(withEntrypoint: "sharedExtension")
+    let flutterViewController = FlutterViewController(engine: flutterEngine, nibName: nil, bundle: nil)
+    addChild(flutterViewController)
+    view.addSubview(flutterViewController.view)
+    flutterViewController.view.frame = view.bounds
   }
 
   func checkUrlType(itemProvider: NSItemProvider) {

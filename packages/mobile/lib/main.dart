@@ -10,6 +10,25 @@ import 'package:widgets/text_editor/rich_text_editor.dart';
 import 'package:widgets/text_editor/rich_text_editor_controller.dart';
 import 'package:widgets/text_editor/rich_text_editor_toolbar.dart';
 
+@pragma('vm:entry-point')
+void sharedExtension() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeFirebase();
+
+  runApp(
+    ProviderScope(
+      observers: [_AppObserver()],
+      child: MaterialApp(
+        home: HookConsumer(builder: (context, ref, child) {
+          return Scaffold(
+            body: Text('panel'),
+          );
+        }),
+      ),
+    ),
+  );
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeFirebase();

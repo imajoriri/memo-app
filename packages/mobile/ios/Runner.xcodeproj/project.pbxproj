@@ -14,6 +14,7 @@
 		474D79F82C9577B800ABE018 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 474D79F72C9577B800ABE018 /* ShareViewController.swift */; };
 		474D7A822C98424900ABE018 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 474D7A812C98424900ABE018 /* GoogleService-Info.plist */; };
 		474D7A842C98F88E00ABE018 /* SharedExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 474D79F52C9577B800ABE018 /* SharedExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		47BCD4B92CAA131200ECED77 /* Flutter.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 474D7A052C957FEB00ABE018 /* Flutter.xcframework */; };
 		4BC1AB739F1905BF4D507C9B /* Pods_SharedExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA2BA081A792F131A3CD4953 /* Pods_SharedExtension.framework */; };
 		5733FEDDCA9647D096977609 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2453CF64E48D5B3FFB6673BB /* Pods_RunnerTests.framework */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
@@ -116,6 +117,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				47BCD4B92CAA131200ECED77 /* Flutter.xcframework in Frameworks */,
 				4BC1AB739F1905BF4D507C9B /* Pods_SharedExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
