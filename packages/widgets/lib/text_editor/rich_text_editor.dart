@@ -1,9 +1,6 @@
 // ignore_for_file: unnecessary_overrides
 
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -50,19 +47,6 @@ class RichTextEditor extends HookWidget {
   final RichTextEditorController controller;
   final FocusNode? focusNode;
 
-  Future<void> _createUrlPreview({
-    required String url,
-    required QuillController controller,
-  }) async {
-    final block = BlockEmbed.custom(
-      _UrlPreviewBlockEmbed.fromUrl(url),
-    );
-    final index = controller.selection.baseOffset;
-    final length = controller.selection.extentOffset - index;
-
-    controller.replaceText(index, length, block, null);
-  }
-
   @override
   Widget build(BuildContext context) {
     final effectiveFocusNode = focusNode ?? useFocusNode();
@@ -71,22 +55,6 @@ class RichTextEditor extends HookWidget {
       controller: controller,
       configurations: QuillEditorConfigurations(
         expands: true,
-        customActions: {
-          PasteTextIntent: CallbackAction(onInvoke: (intent) async {
-            final text = await Clipboard.getData(Clipboard.kTextPlain);
-            // textがurlかどうか。
-            final url = Uri.tryParse(text?.text ?? '');
-            if (url != null && url.hasAbsolutePath) {
-              _createUrlPreview(
-                url: url.toString(),
-                controller: controller,
-              );
-              return true;
-            }
-            controller.clipboardPaste();
-            return null;
-          }),
-        },
         padding: const EdgeInsets.all(16),
         spaceShortcutEvents: [
           ...standardSpaceShorcutEvents,
@@ -99,14 +67,6 @@ class RichTextEditor extends HookWidget {
       ),
     );
   }
-}
-
-class _UrlPreviewBlockEmbed extends CustomBlockEmbed {
-  final String url;
-
-  _UrlPreviewBlockEmbed.fromUrl(this.url) : super('url_preview', url);
-
-  Document get document => Document.fromJson(jsonDecode(data));
 }
 
 class _UrlPreviewEmbedBuilder extends EmbedBuilder {
@@ -139,26 +99,30 @@ class _UrlPreviewEmbedBuilder extends EmbedBuilder {
           alignment: Alignment.centerLeft,
           // TODO: 横幅目一杯に広がってしまうのを防ぐ。
           child: UrlFutureBuilder(
-            key: Key(url),
+            key: ValueKey(url),
             url: Uri.parse(url),
             data: (ogp) => Row(
-              mainAxisSize: MainAxisSize.min,
               children: [
                 if (ogp.iconUrl != null)
                   Image.network(
                     ogp.iconUrl!,
                     width: 16,
                     height: 16,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const SizedBox.shrink(),
                   ),
                 const SizedBox(width: 8),
-                Text(
-                  ogp.title ?? '',
-                  style: textStyle,
+                Expanded(
+                  child: Text(
+                    ogp.title ?? '',
+                    style: textStyle,
+                    maxLines: 1,
+                  ),
                 ),
               ],
             ),
             loading: () => const CircularProgressIndicator(),
-            error: (e, s) => Text(e.toString()),
+            error: (e, s) => Text(url),
           ),
         ),
       ),

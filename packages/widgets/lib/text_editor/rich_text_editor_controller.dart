@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/quill_delta.dart';
@@ -78,4 +79,39 @@ class RichTextEditorController extends QuillController {
     final delta = Delta.fromJson(jsonDecode(content));
     document = Document.fromDelta(delta);
   }
+
+  /// サブクラスのclipboardPasteをオーバーライドして、URLがクリップボードにある場合は、URLプレビューを作成する。
+  @override
+  Future<bool> clipboardPaste({void Function()? updateEditor}) async {
+    final text = await Clipboard.getData(Clipboard.kTextPlain);
+    // textがurlかどうか。
+    final url = Uri.tryParse(text?.text ?? '');
+    if (url != null && url.hasAbsolutePath) {
+      _createUrlPreview(
+        url: url.toString(),
+      );
+      return true;
+    }
+    return super.clipboardPaste(updateEditor: updateEditor);
+  }
+
+  Future<void> _createUrlPreview({
+    required String url,
+  }) async {
+    final block = BlockEmbed.custom(
+      _UrlPreviewBlockEmbed.fromUrl(url),
+    );
+    final index = selection.baseOffset;
+    final length = selection.extentOffset - index;
+
+    replaceText(index, length, block, null);
+  }
+}
+
+class _UrlPreviewBlockEmbed extends CustomBlockEmbed {
+  final String url;
+
+  _UrlPreviewBlockEmbed.fromUrl(this.url) : super('url_preview', url);
+
+  Document get document => Document.fromJson(jsonDecode(data));
 }

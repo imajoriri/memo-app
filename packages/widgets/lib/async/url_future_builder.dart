@@ -96,8 +96,15 @@ class UrlFutureBuilder extends HookWidget {
 
     // icon
     document.getElementsByTagName('link').forEach((dom.Element element) {
-      if (element.attributes['rel'] == 'icon') {
+      if (element.attributes['rel'] == 'icon' ||
+          element.attributes['rel'] == 'shortcut icon') {
         iconUrl = element.attributes['href'];
+        // iconUrlが絶対パスでない場合は、urlを絶対パスに変換する。
+        if (iconUrl != null &&
+            !iconUrl!.startsWith('http') &&
+            !iconUrl!.startsWith('https')) {
+          iconUrl = '$url/${iconUrl!}';
+        }
       }
     });
 
