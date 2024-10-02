@@ -165,6 +165,7 @@ class MyHomePage extends HookConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
+            TextField(),
             Expanded(
               child: RichTextEditor(
                 controller: controller,

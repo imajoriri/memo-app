@@ -257,14 +257,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.1"
-  ffi:
-    dependency: transitive
-    description:
-      name: ffi
-      sha256: "16ed7b077ef01ad6170a3d0c57caa4a112a38d7a2ed5602e0aca9ca6f3d98da6"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.3"
   file:
     dependency: transitive
     description:
@@ -422,14 +414,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.20.5"
-  flutter_keyboard_visibility:
-    dependency: transitive
-    description:
-      name: flutter_keyboard_visibility
-      sha256: "98664be7be0e3ffca00de50f7f6a287ab62c763fc8c762e0a21584584a3ff4f8"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.0.0"
   flutter_keyboard_visibility_linux:
     dependency: transitive
     description:
@@ -454,14 +438,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
-  flutter_keyboard_visibility_web:
+  flutter_keyboard_visibility_temp_fork:
     dependency: transitive
     description:
-      name: flutter_keyboard_visibility_web
-      sha256: d3771a2e752880c79203f8d80658401d0c998e4183edca05a149f5098ce6e3d1
+      name: flutter_keyboard_visibility_temp_fork
+      sha256: e342172aaa6173a661e822c85a005f8c5d0a04a1d263e00cb9f9155adab9cb7c
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "0.1.1"
   flutter_keyboard_visibility_windows:
     dependency: transitive
     description:
@@ -486,11 +470,12 @@ packages:
   flutter_quill:
     dependency: transitive
     description:
-      name: flutter_quill
-      sha256: "9c10ae92f2b5829f3c2ba28e43fa5192c24e64191c6ef9b65cd834800c11a7b3"
-      url: "https://pub.dev"
-    source: hosted
-    version: "10.7.6"
+      path: "."
+      ref: HEAD
+      resolved-ref: "7d6cd5f8100264df1ca71c0cad0f779cf19fc0b3"
+      url: "git@github.com:imajoriri/flutter-quill.git"
+    source: git
+    version: "10.8.2"
   flutter_quill_delta_from_html:
     dependency: transitive
     description:
@@ -760,34 +745,10 @@ packages:
     dependency: transitive
     description:
       name: quill_native_bridge
-      sha256: ba19b639c0fa5d4cadb58465cfdba439d8bffb5b2ccbbc76ff15af8124dcdd7e
+      sha256: "7e2050567c5dae3516b6c399fdd2036971aa16114e19c51832523f2ec1b8faca"
       url: "https://pub.dev"
     source: hosted
-    version: "10.7.6"
-  quill_native_bridge_platform_interface:
-    dependency: transitive
-    description:
-      name: quill_native_bridge_platform_interface
-      sha256: f2219420890d51a260f6e71ef098428a07b4edc50148f66a0b137767a5b6fb7d
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.1-dev.0"
-  quill_native_bridge_web:
-    dependency: transitive
-    description:
-      name: quill_native_bridge_web
-      sha256: "2524e9f74a6ebb386776aa55d4d49a917610f6883a487fb433583d899699dfd4"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.1-dev.1"
-  quill_native_bridge_windows:
-    dependency: transitive
-    description:
-      name: quill_native_bridge_windows
-      sha256: "997daa116473b0f153ebb4e64478658f5020b80c2a4860ddf11c0117712155cf"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.1-dev.0"
+    version: "10.6.2"
   quiver:
     dependency: transitive
     description:
@@ -1040,14 +1001,6 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
-  win32:
-    dependency: transitive
-    description:
-      name: win32
-      sha256: "68d1e89a91ed61ad9c370f9f8b6effed9ae5e0ede22a270bdfa6daf79fc2290a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.5.4"
   yaml:
     dependency: transitive
     description:
@@ -1057,5 +1010,5 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.5.0 <4.0.0"
+  dart: ">=3.5.1 <4.0.0"
   flutter: ">=3.24.0"

@@ -406,14 +406,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.20.5"
-  flutter_keyboard_visibility:
-    dependency: transitive
-    description:
-      name: flutter_keyboard_visibility
-      sha256: "98664be7be0e3ffca00de50f7f6a287ab62c763fc8c762e0a21584584a3ff4f8"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.0.0"
   flutter_keyboard_visibility_linux:
     dependency: transitive
     description:
@@ -438,14 +430,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
-  flutter_keyboard_visibility_web:
+  flutter_keyboard_visibility_temp_fork:
     dependency: transitive
     description:
-      name: flutter_keyboard_visibility_web
-      sha256: d3771a2e752880c79203f8d80658401d0c998e4183edca05a149f5098ce6e3d1
+      name: flutter_keyboard_visibility_temp_fork
+      sha256: e342172aaa6173a661e822c85a005f8c5d0a04a1d263e00cb9f9155adab9cb7c
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "0.1.1"
   flutter_keyboard_visibility_windows:
     dependency: transitive
     description:
@@ -468,13 +460,14 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_quill:
-    dependency: "direct main"
+    dependency: transitive
     description:
-      name: flutter_quill
-      sha256: "90da4f3866ea4ca1b0d4055f0d3a514c7e45276b82b71a62d97389e742fe9b54"
-      url: "https://pub.dev"
-    source: hosted
-    version: "10.7.5"
+      path: "."
+      ref: HEAD
+      resolved-ref: "7d6cd5f8100264df1ca71c0cad0f779cf19fc0b3"
+      url: "git@github.com:imajoriri/flutter-quill.git"
+    source: git
+    version: "10.8.2"
   flutter_quill_delta_from_html:
     dependency: transitive
     description:
@@ -704,10 +697,10 @@ packages:
     dependency: transitive
     description:
       name: quill_native_bridge
-      sha256: "16b1ee5fba1a66331efc9b175e57e2fa79ea029297355e38ef8d67b6bd34449b"
+      sha256: "7e2050567c5dae3516b6c399fdd2036971aa16114e19c51832523f2ec1b8faca"
       url: "https://pub.dev"
     source: hosted
-    version: "10.7.4"
+    version: "10.6.2"
   quiver:
     dependency: transitive
     description:
