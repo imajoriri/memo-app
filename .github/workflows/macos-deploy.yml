@@ -41,6 +41,7 @@ jobs:
       - name: flutter setup
         run: |
           dart pub global activate melos
+          melos clean --sdk-path=${{ env.FLUTTER_ROOT }}
           melos bootstrap --sdk-path=${{ env.FLUTTER_ROOT }}
 
       - name: pod install
