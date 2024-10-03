@@ -16,8 +16,9 @@ dependencies:
   dio: ^5.7.0
   html: ^0.15.4
   flutter_quill:
-    git: git@github.com:imajoriri/flutter-quill.git
-    ref: main
+    git:
+      url: git@github.com:imajoriri/flutter-quill.git
+      ref: main
   url_launcher: ^6.3.0
 
 dev_dependencies:
