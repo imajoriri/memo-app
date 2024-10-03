@@ -17,7 +17,7 @@ dependencies:
   html: ^0.15.4
   flutter_quill:
     git:
-      url: git@github.com:imajoriri/flutter-quill.git
+      url: https://github.com/imajoriri/flutter-quill.git
       ref: master
   url_launcher: ^6.3.0
 
