@@ -69,8 +69,6 @@ class RichTextEditorController extends QuillController {
 
   String get content => jsonEncode(document.toDelta().toJson());
 
-  bool isSame(String content) => this.content == content;
-
   set content(String content) {
     if (content.isEmpty) {
       clear();
@@ -78,6 +76,17 @@ class RichTextEditorController extends QuillController {
     }
     final delta = Delta.fromJson(jsonDecode(content));
     document = Document.fromDelta(delta);
+  }
+
+  /// 先頭に改行を入れ、フォーカスする。
+  void addNewLineAndFocusTop() {
+    replaceText(
+      0,
+      0,
+      '\n',
+      null,
+    );
+    moveCursorToStart();
   }
 
   /// サブクラスのclipboardPasteをオーバーライドして、URLがクリップボードにある場合は、URLプレビューを作成する。

@@ -99,28 +99,11 @@ class MyHomePage extends HookConsumerWidget {
     });
 
     final focusNode = useFocusNode();
-    useOnAppLifecycleStateChange((pre, next) {
-      // アプリが再開した時に、メモの一番下の行にカーソルを移動する。
-      if (next == AppLifecycleState.resumed) {
-        focusNode.requestFocus();
-        controller.moveCursorToEnd();
-      }
-    });
-
-    // 初回起動時はカーソルを一番下に移動する
-    useEffect(
-      () {
-        focusNode.requestFocus();
-        controller.moveCursorToEnd();
-        return null;
-      },
-      const [],
-    );
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          ref.read(latestMemoProvider.notifier).createMemo();
+          controller.addNewLineAndFocusTop();
         },
         child: const Icon(Icons.add),
       ),

@@ -158,14 +158,13 @@ class MyHomePage extends HookConsumerWidget {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          ref.read(latestMemoProvider.notifier).createMemo();
+          controller.addNewLineAndFocusTop();
         },
         child: const Icon(Icons.add),
       ),
       body: SafeArea(
         child: Column(
           children: [
-            TextField(),
             Expanded(
               child: RichTextEditor(
                 controller: controller,
