@@ -13,27 +13,52 @@ class RichTextEditorToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const toolbarConfigurations = QuillToolbarConfigurations();
+
     return Container(
       color: Colors.grey[200],
       child: QuillToolbar(
         configurations: toolbarConfigurations,
-        child: Row(
-          children: [
-            QuillToolbarToggleCheckListButton(
-              options: toolbarConfigurations.buttonOptions.toggleCheckList,
-              controller: controller,
-            ),
-            QuillToolbarToggleStyleButton(
-              attribute: Attribute.ol,
-              options: toolbarConfigurations.buttonOptions.listNumbers,
-              controller: controller,
-            ),
-            QuillToolbarToggleStyleButton(
-              attribute: Attribute.ul,
-              options: toolbarConfigurations.buttonOptions.listBullets,
-              controller: controller,
-            ),
-          ],
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              // QuillSimpleToolbar参照
+              QuillToolbarToggleCheckListButton(
+                options: toolbarConfigurations.buttonOptions.toggleCheckList,
+                controller: controller,
+              ),
+              QuillToolbarToggleStyleButton(
+                attribute: Attribute.ol,
+                options: toolbarConfigurations.buttonOptions.listNumbers,
+                controller: controller,
+              ),
+              QuillToolbarToggleStyleButton(
+                attribute: Attribute.ul,
+                options: toolbarConfigurations.buttonOptions.listBullets,
+                controller: controller,
+              ),
+              QuillToolbarToggleStyleButton(
+                attribute: Attribute.bold,
+                options: toolbarConfigurations.buttonOptions.bold,
+                controller: controller,
+              ),
+              QuillToolbarIndentButton(
+                controller: controller,
+                isIncrease: true,
+                options: toolbarConfigurations.buttonOptions.indentIncrease,
+              ),
+              QuillToolbarIndentButton(
+                controller: controller,
+                isIncrease: false,
+                options: toolbarConfigurations.buttonOptions.indentDecrease,
+              ),
+              QuillToolbarSelectHeaderStyleButtons(
+                controller: controller,
+                options: toolbarConfigurations
+                    .buttonOptions.selectHeaderStyleButtons,
+              ),
+            ],
+          ),
         ),
       ),
     );
