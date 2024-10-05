@@ -11,12 +11,18 @@ import Social
 import UniformTypeIdentifiers
 import FirebaseCore
 import FirebaseFirestore
+import FirebaseAppCheck
+
+class YourAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
+  func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
+    return AppAttestProvider(app: app)
+  }
+}
 
 class ShareViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
-
-    FirebaseApp.configure()
+    firebaseSetUp()
 
     guard
       let extensionItem = extensionContext?.inputItems.first as? NSExtensionItem,
@@ -33,6 +39,23 @@ class ShareViewController: UIViewController {
           self.close()
        }
     }
+  }
+
+  func firebaseSetUp() {
+    let providerFactory = YourAppCheckProviderFactory()
+    AppCheck.setAppCheckProviderFactory(providerFactory)
+
+    let configFileName: String
+#if DEBUG
+    configFileName = "GoogleService-Info-debug"
+#else
+    configFileName = "GoogleService-Info-release"
+#endif
+    guard let filePath = Bundle.main.path(forResource: "\(configFileName)", ofType: "plist"),
+          let options = FirebaseOptions(contentsOfFile: filePath) else {
+      fatalError("Firebase plist file is not found.")
+    }
+    FirebaseApp.configure(options: options)
   }
 
   func checkUrlType(itemProvider: NSItemProvider) {
@@ -100,15 +123,27 @@ struct ShareExtensionView: View {
 
         Button {
           let db = Firestore.firestore()
-          let docRef = db.collection("users").document("test")
+          let query = db.collection("users").document("test4").collection("memos").order(by: "createdAt", descending: true).limit(to: 1)
           Task {
             do {
-              let document = try await docRef.getDocument()
-              if document.exists {
-                let content = (document.data()?["content"] ?? "") as! String
-                let newContent = content + "\n" + text
-                try await docRef.setData(["content": newContent])
-                self.close()
+              let document = try await query.getDocuments()
+              guard let doc = document.documents.first else {
+                return
+              }
+
+              let content = (doc.data()["content"] ?? "") as! String
+              print(content)
+              let data = content.data(using: .utf8)!
+              do {
+                var dic = try JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed]) as? [[String: Any]]
+                let insertText = ["insert": text]
+                dic?.insert(insertText, at: 0)
+                let id = doc.documentID
+                let json = try JSONSerialization.data(withJSONObject: dic, options: [])
+                let jsonString = String(data: json, encoding: .utf8)
+                try await db.collection("users").document("test4").collection("memos").document(id).setData(["content": jsonString])
+              } catch {
+                  print("JSONのデシリアライズに失敗しました: \(error)")
               }
             } catch {
               print("Error adding document:")
