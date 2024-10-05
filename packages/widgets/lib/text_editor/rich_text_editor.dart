@@ -42,10 +42,12 @@ class RichTextEditor extends HookWidget {
     super.key,
     required this.controller,
     this.focusNode,
+    this.scrollController,
   });
 
   final RichTextEditorController controller;
   final FocusNode? focusNode;
+  final ScrollController? scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +55,7 @@ class RichTextEditor extends HookWidget {
     return QuillEditor.basic(
       focusNode: effectiveFocusNode,
       controller: controller,
+      scrollController: scrollController,
       configurations: QuillEditorConfigurations(
         expands: true,
         padding: const EdgeInsets.all(16),

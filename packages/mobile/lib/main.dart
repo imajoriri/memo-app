@@ -101,11 +101,14 @@ class MyHomePage extends HookConsumerWidget {
     final focusNode = useFocusNode();
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          controller.addNewLineAndFocusTop();
-        },
-        child: const Icon(Icons.add),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 50.0),
+        child: FloatingActionButton(
+          onPressed: () {
+            controller.addNewLineAndFocusTop();
+          },
+          child: const Icon(Icons.add),
+        ),
       ),
       body: SafeArea(
         child: Column(

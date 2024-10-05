@@ -18,47 +18,65 @@ class RichTextEditorToolbar extends StatelessWidget {
       color: Colors.grey[200],
       child: QuillToolbar(
         configurations: toolbarConfigurations,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              // QuillSimpleToolbar参照
-              QuillToolbarToggleCheckListButton(
-                options: toolbarConfigurations.buttonOptions.toggleCheckList,
-                controller: controller,
+        child: Row(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    // QuillSimpleToolbar参照
+                    QuillToolbarToggleCheckListButton(
+                      options:
+                          toolbarConfigurations.buttonOptions.toggleCheckList,
+                      controller: controller,
+                    ),
+                    QuillToolbarToggleStyleButton(
+                      attribute: Attribute.ol,
+                      options: toolbarConfigurations.buttonOptions.listNumbers,
+                      controller: controller,
+                    ),
+                    QuillToolbarToggleStyleButton(
+                      attribute: Attribute.ul,
+                      options: toolbarConfigurations.buttonOptions.listBullets,
+                      controller: controller,
+                    ),
+                    QuillToolbarToggleStyleButton(
+                      attribute: Attribute.bold,
+                      options: toolbarConfigurations.buttonOptions.bold,
+                      controller: controller,
+                    ),
+                    QuillToolbarIndentButton(
+                      controller: controller,
+                      isIncrease: true,
+                      options:
+                          toolbarConfigurations.buttonOptions.indentIncrease,
+                    ),
+                    QuillToolbarIndentButton(
+                      controller: controller,
+                      isIncrease: false,
+                      options:
+                          toolbarConfigurations.buttonOptions.indentDecrease,
+                    ),
+                    QuillToolbarSelectHeaderStyleButtons(
+                      controller: controller,
+                      options: toolbarConfigurations
+                          .buttonOptions.selectHeaderStyleButtons,
+                    ),
+                  ],
+                ),
               ),
-              QuillToolbarToggleStyleButton(
-                attribute: Attribute.ol,
-                options: toolbarConfigurations.buttonOptions.listNumbers,
-                controller: controller,
-              ),
-              QuillToolbarToggleStyleButton(
-                attribute: Attribute.ul,
-                options: toolbarConfigurations.buttonOptions.listBullets,
-                controller: controller,
-              ),
-              QuillToolbarToggleStyleButton(
-                attribute: Attribute.bold,
-                options: toolbarConfigurations.buttonOptions.bold,
-                controller: controller,
-              ),
-              QuillToolbarIndentButton(
-                controller: controller,
-                isIncrease: true,
-                options: toolbarConfigurations.buttonOptions.indentIncrease,
-              ),
-              QuillToolbarIndentButton(
-                controller: controller,
-                isIncrease: false,
-                options: toolbarConfigurations.buttonOptions.indentDecrease,
-              ),
-              QuillToolbarSelectHeaderStyleButtons(
-                controller: controller,
-                options: toolbarConfigurations
-                    .buttonOptions.selectHeaderStyleButtons,
-              ),
-            ],
-          ),
+            ),
+
+            // キーボード閉じるボタン
+            IconButton(
+              onPressed: () {
+                // キーボードを閉じる
+                FocusScope.of(context).unfocus();
+              },
+              icon: const Icon(Icons.keyboard_hide),
+            ),
+          ],
         ),
       ),
     );
