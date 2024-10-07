@@ -102,52 +102,50 @@ class MyHomePage extends HookConsumerWidget {
     final focusNode = useFocusNode();
 
     return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          CustomScrollView(
-            shrinkWrap: true,
-            slivers: [
-              CupertinoSliverRefreshControl(
-                onRefresh: () async {
-                  controller.addNewLineAndMoveCursorToStart();
-                  focusNode.requestFocus();
-                },
-                builder: (context, mode, pulledExtent,
-                    refreshTriggerPullDistance, refreshIndicatorExtent) {
-                  return Container(
-                    alignment: Alignment.topCenter,
-                    padding: const EdgeInsets.only(top: 80),
-                    child: const Text('add to top'),
-                  );
-                },
-              ),
-              SliverToBoxAdapter(
-                child: RichTextEditor(
-                  expands: false,
-                  controller: controller,
-                  focusNode: focusNode,
-                  // scrollPhysics: const NeverScrollableScrollPhysics(),
+      body: GestureDetector(
+        onTap: () {
+          focusNode.requestFocus();
+          controller.moveCursorToEnd();
+        },
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CustomScrollView(
+              shrinkWrap: true,
+              slivers: [
+                CupertinoSliverRefreshControl(
+                  onRefresh: () async {
+                    controller.addNewLineAndMoveCursorToStart();
+                    focusNode.requestFocus();
+                  },
+                  builder: (context, mode, pulledExtent,
+                      refreshTriggerPullDistance, refreshIndicatorExtent) {
+                    return Container(
+                      alignment: Alignment.topCenter,
+                      padding: const EdgeInsets.only(top: 80),
+                      child: const Text('add to top'),
+                    );
+                  },
                 ),
-              ),
-              // SliverFillRemaining(
-              //   child: RichTextEditor(
-              //     controller: controller,
-              //     focusNode: focusNode,
-              //     // scrollPhysics: const NeverScrollableScrollPhysics(),
-              //   ),
-              // ),
-            ],
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: RichTextEditorToolbar(
-              controller: controller,
+                SliverToBoxAdapter(
+                  child: RichTextEditor(
+                    expands: false,
+                    controller: controller,
+                    focusNode: focusNode,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: RichTextEditorToolbar(
+                controller: controller,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
