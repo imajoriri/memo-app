@@ -63,7 +63,7 @@ class RichTextEditor extends HookWidget {
       configurations: QuillEditorConfigurations(
         expands: expands,
         scrollPhysics: scrollPhysics,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 80),
         spaceShortcutEvents: [
           ...standardSpaceShorcutEvents,
           _formatCheckList,
