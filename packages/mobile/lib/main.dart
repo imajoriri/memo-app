@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -101,26 +102,34 @@ class MyHomePage extends HookConsumerWidget {
     final focusNode = useFocusNode();
 
     return Scaffold(
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 50.0),
-        child: FloatingActionButton(
-          onPressed: () {
-            controller.addNewLineAndFocusTop();
-          },
-          child: const Icon(Icons.add),
-        ),
-      ),
       body: SafeArea(
-        child: Column(
+        child: Stack(
+          fit: StackFit.expand,
           children: [
-            Expanded(
-              child: RichTextEditor(
-                controller: controller,
-                focusNode: focusNode,
-              ),
+            CustomScrollView(
+              shrinkWrap: true,
+              slivers: [
+                CupertinoSliverRefreshControl(
+                  onRefresh: () async {
+                    controller.addNewLineAndMoveCursorToStart();
+                    focusNode.requestFocus();
+                  },
+                ),
+                SliverFillRemaining(
+                  child: RichTextEditor(
+                    controller: controller,
+                    focusNode: focusNode,
+                  ),
+                ),
+              ],
             ),
-            RichTextEditorToolbar(
-              controller: controller,
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: RichTextEditorToolbar(
+                controller: controller,
+              ),
             ),
           ],
         ),

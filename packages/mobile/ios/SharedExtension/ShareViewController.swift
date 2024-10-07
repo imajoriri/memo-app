@@ -132,7 +132,6 @@ struct ShareExtensionView: View {
               }
 
               let content = (doc.data()["content"] ?? "") as! String
-              print(content)
               let data = content.data(using: .utf8)!
               do {
                 var dic = try JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed]) as? [[String: Any]]

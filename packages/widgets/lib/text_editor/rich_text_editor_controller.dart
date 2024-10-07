@@ -79,7 +79,7 @@ class RichTextEditorController extends QuillController {
   }
 
   /// 先頭に改行を入れ、フォーカスする。
-  void addNewLineAndFocusTop() {
+  void addNewLineAndMoveCursorToStart() {
     replaceText(
       0,
       0,
