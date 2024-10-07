@@ -100,53 +100,71 @@ class MyHomePage extends HookConsumerWidget {
     });
 
     final focusNode = useFocusNode();
+    final scrollController = useScrollController();
 
     return Scaffold(
-      body: GestureDetector(
-        onTap: () {
-          focusNode.requestFocus();
-          controller.moveCursorToEnd();
+      // GestureDetectorだとonPointerMoveが呼ばれないのでListenerを使う。
+      body: Listener(
+        onPointerMove: (event) {
+          final keyboardRect = MediaQuery.of(context).viewInsets.bottom;
+          final bottomPosition =
+              MediaQuery.of(context).size.height - event.position.dy;
+          // ドラッグがキーボードよりも上の位置から下の位置に移動したら、キーボードを閉じる
+          if (bottomPosition < keyboardRect) {
+            // scrollControllerが0より小さい場合はpull to add中なのでskipする
+            if (scrollController.position.pixels < 0) {
+              return;
+            }
+            focusNode.unfocus();
+          }
         },
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            CustomScrollView(
-              shrinkWrap: true,
-              slivers: [
-                CupertinoSliverRefreshControl(
-                  onRefresh: () async {
-                    controller.addNewLineAndMoveCursorToStart();
-                    focusNode.requestFocus();
-                  },
-                  builder: (context, mode, pulledExtent,
-                      refreshTriggerPullDistance, refreshIndicatorExtent) {
-                    return Container(
-                      alignment: Alignment.topCenter,
-                      padding: const EdgeInsets.only(top: 80),
-                      child: const Text('add to top'),
-                    );
-                  },
-                ),
-                SliverToBoxAdapter(
-                  child: RichTextEditor(
-                    expands: false,
-                    controller: controller,
-                    focusNode: focusNode,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 80, horizontal: 16),
+        child: GestureDetector(
+          onTap: () {
+            focusNode.requestFocus();
+            controller.moveCursorToEnd();
+          },
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              CustomScrollView(
+                controller: scrollController,
+                shrinkWrap: true,
+                slivers: [
+                  CupertinoSliverRefreshControl(
+                    onRefresh: () async {
+                      controller.addNewLineAndMoveCursorToStart();
+                      focusNode.requestFocus();
+                    },
+                    builder: (context, mode, pulledExtent,
+                        refreshTriggerPullDistance, refreshIndicatorExtent) {
+                      return Container(
+                        alignment: Alignment.topCenter,
+                        padding: const EdgeInsets.only(top: 80),
+                        child: const Text('add to top'),
+                      );
+                    },
                   ),
-                ),
-              ],
-            ),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: RichTextEditorToolbar(
-                controller: controller,
+                  SliverToBoxAdapter(
+                    child: RichTextEditor(
+                      expands: false,
+                      controller: controller,
+                      focusNode: focusNode,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 80, horizontal: 16),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: RichTextEditorToolbar(
+                  controller: controller,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
