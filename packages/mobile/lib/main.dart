@@ -119,6 +119,7 @@ class MyHomePage extends HookConsumerWidget {
                   child: RichTextEditor(
                     controller: controller,
                     focusNode: focusNode,
+                    scrollPhysics: const NeverScrollableScrollPhysics(),
                   ),
                 ),
               ],

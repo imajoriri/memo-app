@@ -43,11 +43,15 @@ class RichTextEditor extends HookWidget {
     required this.controller,
     this.focusNode,
     this.scrollController,
+    this.expands = true,
+    this.scrollPhysics,
   });
 
   final RichTextEditorController controller;
   final FocusNode? focusNode;
   final ScrollController? scrollController;
+  final bool expands;
+  final ScrollPhysics? scrollPhysics;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +61,8 @@ class RichTextEditor extends HookWidget {
       controller: controller,
       scrollController: scrollController,
       configurations: QuillEditorConfigurations(
-        expands: true,
+        expands: expands,
+        scrollPhysics: scrollPhysics,
         padding: const EdgeInsets.all(16),
         spaceShortcutEvents: [
           ...standardSpaceShorcutEvents,
