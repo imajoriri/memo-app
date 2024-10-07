@@ -106,6 +106,9 @@ class MyHomePage extends HookConsumerWidget {
       // GestureDetectorだとonPointerMoveが呼ばれないのでListenerを使う。
       body: Listener(
         onPointerMove: (event) {
+          // NOTE: 本来はネイティブの機能を使いたいがFlutterが対応していないため、
+          // 擬似的に対応している。
+          // https://github.com/flutter/flutter/issues/57609
           final keyboardRect = MediaQuery.of(context).viewInsets.bottom;
           final bottomPosition =
               MediaQuery.of(context).size.height - event.position.dy;
