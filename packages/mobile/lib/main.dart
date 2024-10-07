@@ -132,6 +132,8 @@ class MyHomePage extends HookConsumerWidget {
                     expands: false,
                     controller: controller,
                     focusNode: focusNode,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 80, horizontal: 16),
                   ),
                 ),
               ],
