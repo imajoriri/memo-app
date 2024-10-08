@@ -115,6 +115,55 @@ class RichTextEditorController extends QuillController {
 
     replaceText(index, length, block, null);
   }
+
+  /// 現在のフォーカスしているリストをチェックリストに変換する。
+  void toggleCheckList() {
+    var attribute = toolbarButtonToggler[Attribute.list.key];
+
+    if (attribute == null) {
+      attribute = getSelectionStyle().attributes[Attribute.list.key];
+    } else {
+      // checkbox tapping causes controller.selection to go to offset 0
+      toolbarButtonToggler.remove(Attribute.list.key);
+    }
+
+    late final bool isToggled;
+    if (attribute == null) {
+      isToggled = false;
+    } else {
+      isToggled = attribute.value == Attribute.unchecked.value ||
+          attribute.value == Attribute.checked.value;
+    }
+
+    formatSelection(
+      isToggled
+          ? Attribute.clone(Attribute.unchecked, null)
+          : Attribute.unchecked,
+    );
+  }
+
+  // 参考: [QuillToolbarToggleStyleButtonState]
+  void toggleList(Attribute attribute) {
+    final attrs = getSelectionStyle().attributes;
+    late final bool isToggled;
+    if (attribute.key == Attribute.list.key ||
+        attribute.key == Attribute.header.key ||
+        attribute.key == Attribute.script.key ||
+        attribute.key == Attribute.align.key) {
+      final currentAttribute = attrs[attribute.key];
+      if (currentAttribute == null) {
+        isToggled = false;
+      } else {
+        isToggled = currentAttribute.value == attribute.value;
+      }
+    } else {
+      isToggled = attrs.containsKey(attribute.key);
+    }
+
+    formatSelection(
+      isToggled ? Attribute.clone(attribute, null) : attribute,
+    );
+  }
 }
 
 class _UrlPreviewBlockEmbed extends CustomBlockEmbed {

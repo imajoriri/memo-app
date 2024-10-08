@@ -156,12 +156,6 @@ class MyHomePage extends HookConsumerWidget {
     });
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          controller.addNewLineAndFocusTop();
-        },
-        child: const Icon(Icons.add),
-      ),
       body: SafeArea(
         child: Column(
           children: [

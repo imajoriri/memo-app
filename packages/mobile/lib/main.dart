@@ -11,6 +11,7 @@ import 'package:model/controller/latest_memo.dart';
 import 'package:widgets/text_editor/rich_text_editor.dart';
 import 'package:widgets/text_editor/rich_text_editor_controller.dart';
 import 'package:widgets/text_editor/rich_text_editor_toolbar.dart';
+import 'package:widgets/text_editor/rich_text_slide_tap_bar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -104,71 +105,83 @@ class MyHomePage extends HookConsumerWidget {
 
     return Scaffold(
       // GestureDetectorだとonPointerMoveが呼ばれないのでListenerを使う。
-      body: Listener(
-        onPointerMove: (event) {
-          // NOTE: 本来はネイティブの機能を使いたいがFlutterが対応していないため、
-          // 擬似的に対応している。
-          // https://github.com/flutter/flutter/issues/57609
-          final keyboardRect = MediaQuery.of(context).viewInsets.bottom;
-          final bottomPosition =
-              MediaQuery.of(context).size.height - event.position.dy;
-          // ドラッグがキーボードよりも上の位置から下の位置に移動したら、キーボードを閉じる
-          if (bottomPosition < keyboardRect) {
-            // scrollControllerが0より小さい場合はpull to add中なのでskipする
-            if (scrollController.position.pixels < 0) {
-              return;
-            }
-            focusNode.unfocus();
-          }
-        },
-        child: GestureDetector(
-          onTap: () {
-            focusNode.requestFocus();
-            controller.moveCursorToEnd();
-          },
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              CustomScrollView(
-                controller: scrollController,
-                shrinkWrap: true,
-                slivers: [
-                  CupertinoSliverRefreshControl(
-                    onRefresh: () async {
-                      controller.addNewLineAndMoveCursorToStart();
-                      focusNode.requestFocus();
-                    },
-                    builder: (context, mode, pulledExtent,
-                        refreshTriggerPullDistance, refreshIndicatorExtent) {
-                      return Container(
-                        alignment: Alignment.topCenter,
-                        padding: const EdgeInsets.only(top: 80),
-                        child: const Text('add to top'),
-                      );
-                    },
+      body: Stack(
+        children: [
+          Listener(
+            onPointerMove: (event) {
+              // NOTE: 本来はネイティブの機能を使いたいがFlutterが対応していないため、
+              // 擬似的に対応している。
+              // https://github.com/flutter/flutter/issues/57609
+              final keyboardRect = MediaQuery.of(context).viewInsets.bottom;
+              final bottomPosition =
+                  MediaQuery.of(context).size.height - event.position.dy;
+              // ドラッグがキーボードよりも上の位置から下の位置に移動したら、キーボードを閉じる
+              if (bottomPosition < keyboardRect) {
+                // scrollControllerが0より小さい場合はpull to add中なのでskipする
+                if (scrollController.position.pixels < 0) {
+                  return;
+                }
+                focusNode.unfocus();
+              }
+            },
+            child: GestureDetector(
+              onTap: () {
+                focusNode.requestFocus();
+                controller.moveCursorToEnd();
+              },
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  CustomScrollView(
+                    controller: scrollController,
+                    shrinkWrap: true,
+                    slivers: [
+                      CupertinoSliverRefreshControl(
+                        onRefresh: () async {
+                          controller.addNewLineAndMoveCursorToStart();
+                          focusNode.requestFocus();
+                        },
+                        builder: (context,
+                            mode,
+                            pulledExtent,
+                            refreshTriggerPullDistance,
+                            refreshIndicatorExtent) {
+                          return Container(
+                            alignment: Alignment.topCenter,
+                            padding: const EdgeInsets.only(top: 80),
+                            child: const Text('add to top'),
+                          );
+                        },
+                      ),
+                      SliverToBoxAdapter(
+                        child: RichTextEditor(
+                          expands: false,
+                          controller: controller,
+                          focusNode: focusNode,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 80, horizontal: 16),
+                        ),
+                      ),
+                    ],
                   ),
-                  SliverToBoxAdapter(
-                    child: RichTextEditor(
-                      expands: false,
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: RichTextEditorToolbar(
                       controller: controller,
-                      focusNode: focusNode,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 80, horizontal: 16),
                     ),
                   ),
                 ],
               ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: RichTextEditorToolbar(
-                  controller: controller,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+          Positioned(
+            top: 100,
+            right: 30,
+            child: RichTextSlideTapBar(controller: controller),
+          ),
+        ],
       ),
     );
   }

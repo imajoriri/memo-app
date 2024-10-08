@@ -13,7 +13,6 @@ class RichTextEditorToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const toolbarConfigurations = QuillToolbarConfigurations();
-
     return Container(
       color: Colors.grey[200],
       child: QuillToolbar(
