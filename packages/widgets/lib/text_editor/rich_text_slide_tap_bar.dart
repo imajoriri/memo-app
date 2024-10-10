@@ -16,37 +16,54 @@ class RichTextSlideTapBar extends StatelessWidget {
     return SlidingTapGroup(
       child: Column(
         children: [
-          SlidingTapItem(
-            onEnter: () {
+          _Button(
+            onToggle: () {
               controller.toggleCheckList();
             },
-            onLeave: () {
-              controller.toggleCheckList();
-            },
-            onConfirm: () {},
-            child: const Icon(Icons.check_box),
+            icon: const Icon(Icons.check_box),
           ),
-          SlidingTapItem(
-            onEnter: () {
+          _Button(
+            onToggle: () {
               controller.toggleList(Attribute.ol);
             },
-            onLeave: () {
-              controller.toggleList(Attribute.ol);
-            },
-            onConfirm: () {},
-            child: const Icon(Icons.format_list_numbered),
+            icon: const Icon(Icons.format_list_numbered),
           ),
-          SlidingTapItem(
-            onEnter: () {
+          _Button(
+            onToggle: () {
               controller.toggleList(Attribute.ul);
             },
-            onLeave: () {
-              controller.toggleList(Attribute.ul);
-            },
-            onConfirm: () {},
-            child: const Icon(Icons.format_list_bulleted),
+            icon: const Icon(Icons.format_list_bulleted),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _Button extends StatelessWidget {
+  const _Button({
+    super.key,
+    required this.onToggle,
+    required this.icon,
+  });
+
+  final void Function() onToggle;
+
+  final Widget icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return SlidingTapItem(
+      onEnter: () {
+        onToggle();
+      },
+      onLeave: () {
+        onToggle();
+      },
+      onConfirm: () {},
+      child: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: icon,
       ),
     );
   }

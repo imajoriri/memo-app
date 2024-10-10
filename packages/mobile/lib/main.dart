@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/web.dart';
+import 'package:mobile/widget/pull_to_add.dart';
 import 'package:model/controller/session.dart';
 import 'package:model/firebase_options.dart';
 import 'package:model/controller/latest_memo.dart';
@@ -117,10 +118,6 @@ class MyHomePage extends HookConsumerWidget {
                   MediaQuery.of(context).size.height - event.position.dy;
               // ドラッグがキーボードよりも上の位置から下の位置に移動したら、キーボードを閉じる
               if (bottomPosition < keyboardRect) {
-                // scrollControllerが0より小さい場合はpull to add中なのでskipする
-                if (scrollController.position.pixels < 0) {
-                  return;
-                }
                 focusNode.unfocus();
               }
             },
@@ -136,21 +133,10 @@ class MyHomePage extends HookConsumerWidget {
                     controller: scrollController,
                     shrinkWrap: true,
                     slivers: [
-                      CupertinoSliverRefreshControl(
+                      PullToAddControl(
                         onRefresh: () async {
                           controller.addNewLineAndMoveCursorToStart();
                           focusNode.requestFocus();
-                        },
-                        builder: (context,
-                            mode,
-                            pulledExtent,
-                            refreshTriggerPullDistance,
-                            refreshIndicatorExtent) {
-                          return Container(
-                            alignment: Alignment.topCenter,
-                            padding: const EdgeInsets.only(top: 80),
-                            child: const Text('add to top'),
-                          );
                         },
                       ),
                       SliverToBoxAdapter(
@@ -177,8 +163,8 @@ class MyHomePage extends HookConsumerWidget {
             ),
           ),
           Positioned(
-            top: 100,
-            right: 30,
+            bottom: 80,
+            right: 20,
             child: RichTextSlideTapBar(controller: controller),
           ),
         ],
