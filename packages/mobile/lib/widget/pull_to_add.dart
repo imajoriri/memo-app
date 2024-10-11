@@ -1,35 +1,33 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart' show CupertinoActivityIndicator;
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show clampDouble;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 
 const double _kActivityIndicatorRadius = 14.0;
-const double _kActivityIndicatorMargin = 16.0;
 
 class _SliverPullToAdd extends SingleChildRenderObjectWidget {
   const _SliverPullToAdd({
-    this.refreshIndicatorLayoutExtent = 0.0,
+    this.refreshIndicatorExtent = 0.0,
     this.hasLayoutExtent = false,
     super.child,
-  }) : assert(refreshIndicatorLayoutExtent >= 0.0);
+  }) : assert(refreshIndicatorExtent >= 0.0);
 
-  // The amount of space the indicator should occupy in the sliver in a
-  // resting state when in the refreshing mode.
-  final double refreshIndicatorLayoutExtent;
+  /// [hasLayoutExtent]がtrueの時に、Sliver内で占領する高さ。
+  final double refreshIndicatorExtent;
 
-  // _RenderCupertinoSliverRefresh will paint the child in the available
-  // space either way but this instructs the _RenderCupertinoSliverRefresh
-  // on whether to also occupy any layoutExtent space or not.
+  /// hasLayoutExtentがtrueの場合、リフレッシュインジケーターはlayoutExtentに従ってスペースを確保します。
+  /// falseの場合は、見た目にはインジケーターが描画されていても、レイアウト上のスペースを占有しない、つまり他のUI要素に影響を与えずに表示される形になります。
   final bool hasLayoutExtent;
 
   @override
   _RenderSliverPullToAdd createRenderObject(BuildContext context) {
     return _RenderSliverPullToAdd(
-      refreshIndicatorExtent: refreshIndicatorLayoutExtent,
+      refreshIndicatorExtent: refreshIndicatorExtent,
       hasLayoutExtent: hasLayoutExtent,
     );
   }
@@ -38,7 +36,7 @@ class _SliverPullToAdd extends SingleChildRenderObjectWidget {
   void updateRenderObject(
       BuildContext context, covariant _RenderSliverPullToAdd renderObject) {
     renderObject
-      ..refreshIndicatorLayoutExtent = refreshIndicatorLayoutExtent
+      ..refreshIndicatorLayoutExtent = refreshIndicatorExtent
       ..hasLayoutExtent = hasLayoutExtent;
   }
 }
@@ -84,10 +82,9 @@ class _RenderSliverPullToAdd extends RenderSliver
     markNeedsLayout();
   }
 
-  // This keeps track of the previously applied scroll offsets to the scrollable
-  // so that when [refreshIndicatorLayoutExtent] or [hasLayoutExtent] changes,
-  // the appropriate delta can be applied to keep everything in the same place
-  // visually.
+  // これは、以前に適用されたスクロールオフセットをスクロール可能なものに追跡し、
+  // [refreshIndicatorLayoutExtent]または[hasLayoutExtent]が変更されたときに、
+  // 視覚的にすべてを同じ場所に保つために適切なデルタを適用できるようにします。
   double layoutExtentOffsetCompensation = 0.0;
 
   @override
@@ -97,9 +94,12 @@ class _RenderSliverPullToAdd extends RenderSliver
     assert(constraints.axisDirection == AxisDirection.down);
     assert(constraints.growthDirection == GrowthDirection.forward);
 
-    // The new layout extent this sliver should now have.
+    // このスリバーが現在持つべき新しいレイアウト範囲の量。
+    // - _hasLayoutExtentがfalseの場合は0になる。
+    // - _hasLayoutExtentがtrueの場合は、[refreshIndicatorLayoutExtent]の値になる。
     final double layoutExtent =
         (_hasLayoutExtent ? 1.0 : 0.0) * _refreshIndicatorExtent;
+
     // 新しいlayoutExtentが変更された場合、SliverGeometryのlayoutExtentはその値を取ります（次のperformLayout実行時に）。
     // スクロール位置が突然ジャンプしないように、最初にスクロールオフセットをシフトします。
     if (layoutExtent != layoutExtentOffsetCompensation) {
@@ -168,38 +168,28 @@ class _RenderSliverPullToAdd extends RenderSliver
   void applyPaintTransform(RenderObject child, Matrix4 transform) {}
 }
 
-/// The current state of the refresh control.
-///
-/// Passed into the [RefreshControlIndicatorBuilder] builder function so
-/// users can show different UI in different modes.
 enum RefreshIndicatorMode {
-  /// Initial state, when not being overscrolled into, or after the overscroll
-  /// is canceled or after done and the sliver retracted away.
+  /// 初期状態
   inactive,
 
-  /// While being overscrolled but not far enough yet to trigger the refresh.
+  /// 初期状態から最初の閾値までの間
   drag,
 
-  /// Dragged far enough that the onRefresh callback will run and the dragged
-  /// displacement is not yet at the final refresh resting state.
-  armed,
+  /// 閾値を超えた
+  overFirstThreshold,
 
-  /// While the onRefresh task is running.
-  refresh,
+  /// 閾値を超えた
+  overSecondThreshold,
 
-  /// While the indicator is animating away after refreshing.
+  animating,
   done,
 }
 
-/// Signature for a builder that can create a different widget to show in the
-/// refresh indicator space depending on the current state of the refresh
-/// control and the space available.
+/// リフレッシュコントロールの現在の状態と利用可能なスペースに応じて、リフレッシュインジケーターのスペースに表示する異なるウィジェットを作成できるビルダーのシグネチャ。
 ///
-/// The `refreshTriggerPullDistance` and `refreshIndicatorExtent` parameters are
-/// the same values passed into the [CupertinoSliverRefreshControl].
+/// `refreshTriggerPullDistance`と`refreshIndicatorExtent`のパラメータは、[CupertinoSliverRefreshControl]に渡されるのと同じ値です。
 ///
-/// The `pulledExtent` parameter is the currently available space either from
-/// overscrolling or as held by the sliver during refresh.
+/// `pulledExtent`パラメータは、オーバースクロールから得られるか、リフレッシュ中にスライバーによって保持される現在の利用可能なスペースです。
 typedef RefreshControlIndicatorBuilder = Widget Function(
   BuildContext context,
   RefreshIndicatorMode refreshState,
@@ -208,21 +198,14 @@ typedef RefreshControlIndicatorBuilder = Widget Function(
   double refreshIndicatorExtent,
 );
 
-/// A callback function that's invoked when the [CupertinoSliverRefreshControl] is
-/// pulled a `refreshTriggerPullDistance`. Must return a [Future]. Upon
-/// completion of the [Future], the [CupertinoSliverRefreshControl] enters the
-/// [RefreshIndicatorMode.done] state and will start to go away.
-typedef RefreshCallback = Future<void> Function();
-
-/// 引っ張るジェスチャでUIを更新する。
-/// [CupertinoSliverRefreshControl]を模倣している。
-class PullToAddControl extends StatefulWidget {
+class PullToAddControl extends HookWidget {
   const PullToAddControl({
     super.key,
-    this.refreshTriggerPullDistance = _defaultRefreshTriggerPullDistance,
-    this.refreshIndicatorExtent = _defaultRefreshIndicatorExtent,
+    required this.slivers,
+    required this.onPull,
+    this.refreshTriggerPullDistance = 60,
+    this.refreshIndicatorExtent = 20.0,
     this.builder = buildRefreshIndicator,
-    this.onRefresh,
   })  : assert(refreshTriggerPullDistance > 0.0),
         assert(refreshIndicatorExtent >= 0.0),
         assert(
@@ -231,31 +214,17 @@ class PullToAddControl extends StatefulWidget {
           'than the amount initially created by overscrolling.',
         );
 
-  /// 引っ張るジェスチャでUIを更新するために必要な距離。
+  final List<Widget> slivers;
+
   final double refreshTriggerPullDistance;
 
-  /// [onRefresh]のFutureが実行中の間、リフレッシュ インジケーター スライバーが保持し続けるスペースの量 。
-  ///
-  /// リフレッシュをトリガーした後はスライバーがそれ以上拡大しないようにするため、[refreshTriggerPullDistance]より小さくする必要があります。
+  /// [onPull]が実行中に占領されるスペースの量。
   final double refreshIndicatorExtent;
 
-  final RefreshControlIndicatorBuilder? builder;
+  final RefreshControlIndicatorBuilder builder;
 
-  /// [refreshTriggerPullDistance]に達したときに呼び出される。
-  ///
-  /// [onRefresh]がnullの場合、[RefreshIndicatorMode.armed]の状態が1フレーム描画された後、すぐに[RefreshIndicatorMode.done]に遷移します。
-  final RefreshCallback? onRefresh;
+  final Future<void> Function(int count) onPull;
 
-  static const double _defaultRefreshTriggerPullDistance = 100.0;
-  static const double _defaultRefreshIndicatorExtent = 60.0;
-
-  /// Builds a refresh indicator that reflects the standard iOS pull-to-refresh
-  /// behavior. Specifically, this entails presenting an activity indicator that
-  /// changes depending on the current refreshState. As the user initially drags
-  /// down, the indicator will gradually reveal individual ticks until the refresh
-  /// becomes armed. At this point, the animated activity indicator will begin rotating.
-  /// Once the refresh has completed, the activity indicator shrinks away as the
-  /// space allocation animates back to closed.
   static Widget buildRefreshIndicator(
     BuildContext context,
     RefreshIndicatorMode refreshState,
@@ -266,203 +235,171 @@ class PullToAddControl extends StatefulWidget {
     final double percentageComplete =
         clampDouble(pulledExtent / refreshTriggerPullDistance, 0.0, 1.0);
 
-    // Place the indicator at the top of the sliver that opens up. We're using a
-    // Stack/Positioned widget because the CupertinoActivityIndicator does some
-    // internal translations based on the current size (which grows as the user drags)
-    // that makes Padding calculations difficult. Rather than be reliant on the
-    // internal implementation of the activity indicator, the Positioned widget allows
-    // us to be explicit where the widget gets placed. The indicator should appear
-    // over the top of the dragged widget, hence the use of Clip.none.
-    return Center(
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: <Widget>[
-          Positioned(
-            top: _kActivityIndicatorMargin,
-            left: 0.0,
-            right: 0.0,
-            child: _buildIndicatorForRefreshState(
-                refreshState, _kActivityIndicatorRadius, percentageComplete),
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned(
+          top: 100,
+          left: 0.0,
+          right: 0.0,
+          child: _buildIndicatorForRefreshState(
+            refreshState,
+            _kActivityIndicatorRadius,
+            percentageComplete,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   static Widget _buildIndicatorForRefreshState(
-      RefreshIndicatorMode refreshState,
-      double radius,
-      double percentageComplete) {
-    switch (refreshState) {
-      case RefreshIndicatorMode.drag:
-        // While we're dragging, we draw individual ticks of the spinner while simultaneously
-        // easing the opacity in. The opacity curve values here were derived using
-        // Xcode through inspecting a native app running on iOS 13.5.
-        const Curve opacityCurve = Interval(0.0, 0.35, curve: Curves.easeInOut);
-        return Opacity(
-          opacity: opacityCurve.transform(percentageComplete),
-          child: CupertinoActivityIndicator.partiallyRevealed(
-              radius: radius, progress: percentageComplete),
-        );
-      case RefreshIndicatorMode.armed:
-      case RefreshIndicatorMode.refresh:
-        // Once we're armed or performing the refresh, we just show the normal spinner.
-        return CupertinoActivityIndicator(radius: radius);
-      case RefreshIndicatorMode.done:
-        // When the user lets go, the standard transition is to shrink the spinner.
-        return CupertinoActivityIndicator(radius: radius * percentageComplete);
-      case RefreshIndicatorMode.inactive:
-        // Anything else doesn't show anything.
-        return const SizedBox.shrink();
-    }
-  }
-
-  @override
-  State<PullToAddControl> createState() =>
-      _CupertinoSliverRefreshControlState();
-}
-
-class _CupertinoSliverRefreshControlState extends State<PullToAddControl> {
-  // 元の `refreshTriggerPullDistance` のこの割合だけ残っているときに、状態を done から inactive にリセットします。
-  static const double _inactiveResetOverscrollFraction = 0.1;
-
-  late RefreshIndicatorMode refreshState;
-  // [Future] returned by the widget's `onRefresh`.
-  Future<void>? refreshTask;
-  // The amount of space available from the inner indicator box's perspective.
-  //
-  // The value is the sum of the sliver's layout extent and the overscroll
-  // (which partially gets transferred into the layout extent when the refresh
-  // triggers).
-  //
-  // The value of latestIndicatorBoxExtent doesn't change when the sliver scrolls
-  // away without retracting; it is independent from the sliver's scrollOffset.
-  double latestIndicatorBoxExtent = 0.0;
-  bool hasSliverLayoutExtent = false;
-
-  @override
-  void initState() {
-    super.initState();
-    refreshState = RefreshIndicatorMode.inactive;
+    RefreshIndicatorMode refreshState,
+    double radius,
+    double percentageComplete,
+  ) {
+    return switch (refreshState) {
+      RefreshIndicatorMode.inactive => const SizedBox.shrink(),
+      RefreshIndicatorMode.drag => const Icon(Icons.arrow_downward),
+      RefreshIndicatorMode.overFirstThreshold =>
+        const Text('add line', textAlign: TextAlign.center),
+      RefreshIndicatorMode.overSecondThreshold =>
+        const Text('add two lines', textAlign: TextAlign.center),
+      RefreshIndicatorMode.animating =>
+        const Text('animating', textAlign: TextAlign.center),
+      RefreshIndicatorMode.done =>
+        const Text('done', textAlign: TextAlign.center),
+    };
   }
 
   // Pull To Addの状態を計算して返す。
-  RefreshIndicatorMode transitionNextState() {
-    RefreshIndicatorMode nextState;
+  void transitionNextState({
+    required double pulledExtent,
+    required ValueNotifier<RefreshIndicatorMode> refreshState,
+    required ValueNotifier<Future<void>?> refreshTask,
+  }) {
+    // 1つ目の閾値
+    final firstThreshold = refreshTriggerPullDistance;
+    // 2つ目の閾値
+    final secondThreshold = refreshTriggerPullDistance * 2;
 
-    void goToDone() {
-      nextState = RefreshIndicatorMode.done;
-      // Either schedule the RenderSliver to re-layout on the next frame
-      // when not currently in a frame or schedule it on the next frame.
-      if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.idle) {
-        setState(() => hasSliverLayoutExtent = false);
-      } else {
-        SchedulerBinding.instance.addPostFrameCallback((Duration timestamp) {
-          setState(() => hasSliverLayoutExtent = false);
-        }, debugLabel: 'Refresh.goToDone');
-      }
-    }
-
-    switch (refreshState) {
+    switch (refreshState.value) {
       case RefreshIndicatorMode.inactive:
-        if (latestIndicatorBoxExtent <= 0) {
-          return RefreshIndicatorMode.inactive;
-        } else {
-          nextState = RefreshIndicatorMode.drag;
+        if (pulledExtent <= 0) {
+          return;
         }
-        continue drag;
-      drag:
+        refreshState.value = RefreshIndicatorMode.drag;
       case RefreshIndicatorMode.drag:
-        if (latestIndicatorBoxExtent == 0) {
-          return RefreshIndicatorMode.inactive;
-        } else if (latestIndicatorBoxExtent <
-            widget.refreshTriggerPullDistance) {
-          return RefreshIndicatorMode.drag;
-        } else {
-          if (widget.onRefresh != null) {
-            HapticFeedback.mediumImpact();
-            // Call onRefresh after this frame finished since the function is
-            // user supplied and we're always here in the middle of the sliver's
-            // performLayout.
-            SchedulerBinding.instance.addPostFrameCallback(
-                (Duration timestamp) {
-              refreshTask = widget.onRefresh!()
-                ..whenComplete(() {
-                  if (mounted) {
-                    setState(() => refreshTask = null);
-                    // Trigger one more transition because by this time, BoxConstraint's
-                    // maxHeight might already be resting at 0 in which case no
-                    // calls to [transitionNextState] will occur anymore and the
-                    // state may be stuck in a non-inactive state.
-                    refreshState = transitionNextState();
-                  }
-                });
-              setState(() => hasSliverLayoutExtent = true);
-            }, debugLabel: 'Refresh.transition');
-          }
-          return RefreshIndicatorMode.armed;
+        if (pulledExtent == 0) {
+          refreshState.value = RefreshIndicatorMode.inactive;
+          return;
         }
-      case RefreshIndicatorMode.armed:
-        if (refreshState == RefreshIndicatorMode.armed && refreshTask == null) {
-          goToDone();
-          continue done;
+        if (pulledExtent >= firstThreshold) {
+          HapticFeedback.mediumImpact();
+          refreshState.value = RefreshIndicatorMode.overFirstThreshold;
+        }
+      case RefreshIndicatorMode.overFirstThreshold:
+        if (pulledExtent < firstThreshold) {
+          refreshState.value = RefreshIndicatorMode.drag;
+          return;
+        }
+        if (pulledExtent >= secondThreshold) {
+          HapticFeedback.mediumImpact();
+          refreshState.value = RefreshIndicatorMode.overSecondThreshold;
+          return;
+        }
+      case RefreshIndicatorMode.overSecondThreshold:
+        if (pulledExtent < secondThreshold) {
+          refreshState.value = RefreshIndicatorMode.overFirstThreshold;
+          return;
         }
 
-        if (latestIndicatorBoxExtent > widget.refreshIndicatorExtent) {
-          return RefreshIndicatorMode.armed;
-        } else {
-          nextState = RefreshIndicatorMode.refresh;
+        refreshState.value = RefreshIndicatorMode.overSecondThreshold;
+      case RefreshIndicatorMode.animating:
+        if (refreshTask.value != null) {
+          // リフレッシュ中はリフレッシュを継続。
+          return;
         }
-        continue refresh;
-      refresh:
-      case RefreshIndicatorMode.refresh:
-        if (refreshTask != null) {
-          return RefreshIndicatorMode.refresh;
-        } else {
-          goToDone();
-        }
+        refreshState.value = RefreshIndicatorMode.done;
         continue done;
       done:
       case RefreshIndicatorMode.done:
-        // Let the transition back to inactive trigger before strictly going
-        // to 0.0 since the last bit of the animation can take some time and
-        // can feel sluggish if not going all the way back to 0.0 prevented
-        // a subsequent pull-to-refresh from starting.
-        if (latestIndicatorBoxExtent >
-            widget.refreshTriggerPullDistance *
-                _inactiveResetOverscrollFraction) {
-          return RefreshIndicatorMode.done;
-        } else {
-          nextState = RefreshIndicatorMode.inactive;
+        // 完了後のアニメーションの最後の部分は時間がかかることがあり、
+        // 0.0になるまで待っていたら次のユーザーのアクションが開始されてしまうとstatusがバグってしまうため、
+        // 非アクティブに戻る遷移を厳密に0.0にする前にトリガーさせます。
+        if (pulledExtent > refreshTriggerPullDistance * 0.1) {
+          return;
         }
+        refreshState.value = RefreshIndicatorMode.inactive;
+        return;
     }
-
-    return nextState;
   }
 
   @override
   Widget build(BuildContext context) {
-    return _SliverPullToAdd(
-      refreshIndicatorLayoutExtent: widget.refreshIndicatorExtent,
-      hasLayoutExtent: hasSliverLayoutExtent,
-      // A LayoutBuilder lets the sliver's layout changes be fed back out to
-      // its owner to trigger state changes.
-      child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          latestIndicatorBoxExtent = constraints.maxHeight;
-          refreshState = transitionNextState();
-          if (widget.builder != null && latestIndicatorBoxExtent > 0) {
-            return widget.builder!(
-              context,
-              refreshState,
-              latestIndicatorBoxExtent,
-              widget.refreshTriggerPullDistance,
-              widget.refreshIndicatorExtent,
-            );
-          }
-          return const LimitedBox(
-              maxWidth: 0.0, maxHeight: 0.0, child: SizedBox.expand());
-        },
+    final refreshState = useState(RefreshIndicatorMode.inactive);
+    final refreshTask = useState<Future<void>?>(null);
+
+    return Listener(
+      // 指を離した時
+      onPointerUp: (event) async {
+        switch (refreshState.value) {
+          case RefreshIndicatorMode.inactive:
+            refreshState.value = RefreshIndicatorMode.inactive;
+          case RefreshIndicatorMode.drag:
+            await onPull(0);
+            refreshState.value = RefreshIndicatorMode.inactive;
+            return;
+          case RefreshIndicatorMode.overFirstThreshold:
+            refreshTask.value = onPull(1)
+              ..whenComplete(() {
+                refreshTask.value = null;
+                // この時点でBoxConstraintのmaxHeightが0になっている可能性があるため、
+                // もう一度遷移をトリガーします。そうしないと、transitionNextStateの呼び出しが
+                // 行われず、状態が非アクティブでないままになる可能性があります。
+                // transitionNextState();
+              });
+            refreshState.value = RefreshIndicatorMode.animating;
+          case RefreshIndicatorMode.overSecondThreshold:
+            refreshTask.value = onPull(2)
+              ..whenComplete(() {
+                refreshTask.value = null;
+                // transitionNextState();
+              });
+            refreshState.value = RefreshIndicatorMode.animating;
+          default:
+            assert(false);
+        }
+      },
+      child: CustomScrollView(
+        shrinkWrap: true,
+        slivers: [
+          _SliverPullToAdd(
+            refreshIndicatorExtent: refreshIndicatorExtent,
+            // TODO: trueにしてしまうと、最小スペースがrefreshIndicatorExtentになってしまうため、inactiveにならない。
+            // refreshState.value != RefreshIndicatorMode.inactive,
+            hasLayoutExtent: false,
+            child: LayoutBuilder(builder: (context, constraints) {
+              final pulledExtent = constraints.maxHeight;
+              SchedulerBinding.instance
+                  .addPostFrameCallback((Duration timestamp) {
+                transitionNextState(
+                  pulledExtent: pulledExtent,
+                  refreshState: refreshState,
+                  refreshTask: refreshTask,
+                );
+              });
+
+              return builder(
+                context,
+                refreshState.value,
+                pulledExtent,
+                refreshTriggerPullDistance,
+                refreshIndicatorExtent,
+              );
+            }),
+          ),
+          ...slivers,
+        ],
       ),
     );
   }
