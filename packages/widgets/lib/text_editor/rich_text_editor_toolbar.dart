@@ -13,6 +13,10 @@ class RichTextEditorToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const toolbarConfigurations = QuillToolbarConfigurations();
+    // return QuillSimpleToolbar(
+    //   configurations: QuillSimpleToolbarConfigurations(),
+    //   controller: controller,
+    // );
     return Container(
       color: Colors.grey[200],
       child: QuillToolbar(
@@ -61,6 +65,14 @@ class RichTextEditorToolbar extends StatelessWidget {
                       controller: controller,
                       options: toolbarConfigurations
                           .buttonOptions.selectHeaderStyleButtons,
+                    ),
+
+                    // 現在の行を削除するボタン
+                    IconButton(
+                      onPressed: () {
+                        controller.deleteCurrentLine();
+                      },
+                      icon: const Icon(Icons.delete),
                     ),
                   ],
                 ),

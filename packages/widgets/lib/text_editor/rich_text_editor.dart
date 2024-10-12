@@ -74,8 +74,6 @@ class RichTextEditor extends HookWidget {
         embedBuilders: [
           _UrlPreviewEmbedBuilder(),
         ],
-        customLeadingBlockBuilder: (node, configurations) =>
-            const Icon(Icons.check),
       ),
     );
   }

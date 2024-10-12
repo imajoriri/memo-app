@@ -166,6 +166,36 @@ class RichTextEditorController extends QuillController {
           : attribute,
     );
   }
+
+  /// 現在の行を削除する。
+  void deleteCurrentLine() {
+    final currentDelta = document.toDelta();
+    // 現在のoffsetを取得
+    final offset = selection.baseOffset;
+
+    // offsetの行の先頭のoffsetを取得
+    final text = document.toPlainText();
+    // 改行のoffset一覧
+    final lineBreaks = [];
+    var tmp = 0;
+    text.split('\n').forEach((e) {
+      lineBreaks.add(tmp);
+      tmp += e.length + 1;
+    });
+    final startOffset = lineBreaks.lastWhere((e) => e <= offset);
+    final endOffset = lineBreaks.firstWhere((e) => e > offset);
+    try {
+      replaceText(
+        startOffset,
+        endOffset - startOffset,
+        '',
+        TextSelection.collapsed(offset: startOffset),
+      );
+    } catch (e) {
+      // 元のdeltaに戻す
+      document = Document.fromDelta(currentDelta);
+    }
+  }
 }
 
 class _UrlPreviewBlockEmbed extends CustomBlockEmbed {
