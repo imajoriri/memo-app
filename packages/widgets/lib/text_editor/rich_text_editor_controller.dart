@@ -196,6 +196,35 @@ class RichTextEditorController extends QuillController {
       document = Document.fromDelta(currentDelta);
     }
   }
+
+  /// 現在の行の下に新しい行を追加する。
+  void addNewLineToCurrentLine() {
+    final currentDelta = document.toDelta();
+    // 現在のoffsetを取得
+    final offset = selection.baseOffset;
+
+    // offsetの行の先頭のoffsetを取得
+    final text = document.toPlainText();
+    // 改行のoffset一覧
+    final lineBreaks = [];
+    var tmp = 0;
+    text.split('\n').forEach((e) {
+      lineBreaks.add(tmp);
+      tmp += e.length + 1;
+    });
+    final endOffset = lineBreaks.firstWhere((e) => e > offset);
+    try {
+      replaceText(
+        endOffset,
+        0,
+        '\n',
+        TextSelection.collapsed(offset: endOffset),
+      );
+    } catch (e) {
+      // 元のdeltaに戻す
+      document = Document.fromDelta(currentDelta);
+    }
+  }
 }
 
 class _UrlPreviewBlockEmbed extends CustomBlockEmbed {

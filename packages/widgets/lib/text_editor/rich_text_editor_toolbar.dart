@@ -74,6 +74,14 @@ class RichTextEditorToolbar extends StatelessWidget {
                       },
                       icon: const Icon(Icons.delete),
                     ),
+
+                    // 現在の行の下に新しい行を追加するボタン
+                    IconButton(
+                      onPressed: () {
+                        controller.addNewLineToCurrentLine();
+                      },
+                      icon: const Icon(Icons.add),
+                    ),
                   ],
                 ),
               ),
