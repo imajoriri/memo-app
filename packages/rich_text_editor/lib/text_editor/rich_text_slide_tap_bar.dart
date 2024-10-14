@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:rich_text_editor/text_editor/rich_text_editor_controller.dart';
 import 'package:widgets/button/slide_tap.dart';
-import 'package:widgets/text_editor/rich_text_editor_controller.dart';
 
 class RichTextSlideTapBar extends StatelessWidget {
   const RichTextSlideTapBar({
@@ -42,7 +42,6 @@ class RichTextSlideTapBar extends StatelessWidget {
 
 class _Button extends StatelessWidget {
   const _Button({
-    super.key,
     required this.onToggle,
     required this.icon,
   });

@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_quill/flutter_quill.dart';
+import 'package:rich_text_editor/async/url_future_builder.dart';
+import 'package:rich_text_editor/text_editor/rich_text_editor_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:widgets/async/url_future_builder.dart';
-import 'package:widgets/text_editor/rich_text_editor_controller.dart';
 
 void _updateSelectionForKeyPhrase(
     String phrase, Attribute attribute, QuillController controller) {

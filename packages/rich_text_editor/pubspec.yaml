@@ -1,4 +1,4 @@
-name: widgets
+name: rich_text_editor
 description: "A new Flutter package project."
 version: 0.0.1
 homepage:
@@ -14,6 +14,10 @@ dependencies:
 
     # Riverpod
   flutter_hooks: ^0.20.5
+  hooks_riverpod: ^3.0.0-dev.3
+  riverpod: ^3.0.0-dev.3
+  riverpod_annotation: ^3.0.0-dev.3
+  riverpod_generator: ^3.0.0-dev.11
 
   dio: ^5.7.0
   html: ^0.15.4
@@ -24,9 +28,12 @@ dependencies:
       ref: master
   url_launcher: ^6.3.0
 
+  widgets:
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  build_runner: ^2.4.9
 
 flutter:

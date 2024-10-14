@@ -1,6 +1,8 @@
-# melos_managed_dependency_overrides: model,widgets
+# melos_managed_dependency_overrides: model,widgets,rich_text_editor
 dependency_overrides:
   model:
     path: ../model
+  rich_text_editor:
+    path: ../rich_text_editor
   widgets:
     path: ../widgets

@@ -9,8 +9,8 @@ import 'package:logger/web.dart';
 import 'package:model/controller/latest_memo.dart';
 import 'package:model/controller/session.dart';
 import 'package:model/firebase_options.dart';
-import 'package:widgets/text_editor/rich_text_editor.dart';
-import 'package:widgets/text_editor/rich_text_editor_controller.dart';
+import 'package:rich_text_editor/text_editor/rich_text_editor.dart';
+import 'package:rich_text_editor/text_editor/rich_text_editor_controller.dart';
 
 @pragma('vm:entry-point')
 void panel() async {
