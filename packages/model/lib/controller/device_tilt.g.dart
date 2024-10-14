@@ -1,29 +1,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'latest_memo.dart';
+part of 'device_tilt.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$latestMemoHash() => r'41a3a6bb9026c6c6120aeff07be9fb82212fba54';
+String _$deviceTiltHash() => r'179a365802e8c9ef067e6f9dc33131dccc360fc3';
 
-/// 最新のメモを取得する。
-///
-/// 1件もない場合は、作成して返す。
-///
-/// Copied from [LatestMemo].
-@ProviderFor(LatestMemo)
-final latestMemoProvider =
-    AutoDisposeStreamNotifierProvider<LatestMemo, Memo?>.internal(
-  LatestMemo.new,
-  name: r'latestMemoProvider',
+/// See also [DeviceTilt].
+@ProviderFor(DeviceTilt)
+final deviceTiltProvider =
+    AutoDisposeNotifierProvider<DeviceTilt, DeviceTiltState>.internal(
+  DeviceTilt.new,
+  name: r'deviceTiltProvider',
   debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$latestMemoHash,
+      const bool.fromEnvironment('dart.vm.product') ? null : _$deviceTiltHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$LatestMemo = AutoDisposeStreamNotifier<Memo?>;
+typedef _$DeviceTilt = AutoDisposeNotifier<DeviceTiltState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, inference_failure_on_uninitialized_variable, inference_failure_on_function_return_type, inference_failure_on_untyped_parameter, deprecated_member_use_from_same_package

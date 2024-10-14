@@ -6,9 +6,11 @@ class RichTextEditorToolbar extends StatelessWidget {
   const RichTextEditorToolbar({
     super.key,
     required this.controller,
+    this.padding = EdgeInsets.zero,
   });
 
   final RichTextEditorController controller;
+  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +19,11 @@ class RichTextEditorToolbar extends StatelessWidget {
     //   configurations: QuillSimpleToolbarConfigurations(),
     //   controller: controller,
     // );
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutExpo,
       color: Colors.grey[200],
+      padding: padding,
       child: QuillToolbar(
         configurations: toolbarConfigurations,
         child: Row(

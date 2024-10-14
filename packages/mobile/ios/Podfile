@@ -48,4 +48,7 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
   end
+  # xcodeから実機でdebugする際に起こるエラーを回避する
+  # https://github.com/flutter/flutter/issues/123852#issuecomment-1493232105
+  system('sed -i \'\' \'44s/readlink/readlink -f/\' \'Pods/Target Support Files/Pods-Runner/Pods-Runner-frameworks.sh\'')
 end

@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/web.dart';
 import 'package:mobile/widget/pull_to_add.dart';
+import 'package:model/controller/device_tilt.dart';
 import 'package:model/controller/session.dart';
 import 'package:model/firebase_options.dart';
 import 'package:model/controller/latest_memo.dart';
@@ -102,6 +104,13 @@ class MyHomePage extends HookConsumerWidget {
 
     final focusNode = useFocusNode();
 
+    final deviceTilt = ref.watch(deviceTiltProvider);
+    ref.listen(deviceTiltProvider, (previous, next) {
+      if (next == DeviceTiltState.right || next == DeviceTiltState.left) {
+        HapticFeedback.lightImpact();
+      }
+    });
+
     return Scaffold(
       // GestureDetectorだとonPointerMoveが呼ばれないのでListenerを使う。
       body: Stack(
@@ -156,6 +165,13 @@ class MyHomePage extends HookConsumerWidget {
                     left: 0,
                     right: 0,
                     child: RichTextEditorToolbar(
+                      padding: switch (deviceTilt) {
+                        DeviceTiltState.right =>
+                          const EdgeInsets.only(left: 100),
+                        DeviceTiltState.left =>
+                          const EdgeInsets.only(right: 100),
+                        _ => EdgeInsets.zero,
+                      },
                       controller: controller,
                     ),
                   ),
