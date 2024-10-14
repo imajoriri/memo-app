@@ -138,7 +138,7 @@ class MyHomePage extends HookConsumerWidget {
                 children: [
                   PullToAddControl(
                     onPull: (count) async {
-                      if (count > 1) {
+                      if (count >= 1) {
                         for (var i = 0; i < count; i++) {
                           controller.addNewLineAndMoveCursorToStart();
                         }
