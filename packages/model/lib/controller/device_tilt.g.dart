@@ -6,7 +6,7 @@ part of 'device_tilt.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$deviceTiltHash() => r'179a365802e8c9ef067e6f9dc33131dccc360fc3';
+String _$deviceTiltHash() => r'fe04a4d74ea3ad6ca30b0341675876064e9a5392';
 
 /// See also [DeviceTilt].
 @ProviderFor(DeviceTilt)

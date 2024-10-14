@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:html/parser.dart' as html_parser;
 import 'package:dio/dio.dart';
 import 'package:html/dom.dart' as dom;
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'url_future_builder.g.dart';
 
 final _dio = Dio();
 
@@ -22,7 +25,7 @@ class UrlPreview {
   final String? iconUrl;
 }
 
-class UrlFutureBuilder extends HookWidget {
+class UrlFutureBuilder extends ConsumerWidget {
   /// リンク先のURL。
   final Uri url;
 
@@ -43,7 +46,26 @@ class UrlFutureBuilder extends HookWidget {
     required this.error,
   });
 
-  Future<UrlPreview> _fetchOgp(Uri url) async {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      child: ref.watch(urlPreviewControllerProvider(url: url.toString())).when(
+            loading: loading,
+            error: error,
+            data: data,
+          ),
+    );
+  }
+}
+
+/// OGP情報を取得するコントローラー。
+///
+/// 表示のたびにAPIを叩くのは非効率なので、keepAliveをtrueにしている。
+@Riverpod(keepAlive: true)
+class UrlPreviewController extends _$UrlPreviewController {
+  @override
+  FutureOr<UrlPreview> build({required String url}) async {
     final response = await _dio.get(
       url.toString(),
       options: Options(
@@ -130,23 +152,6 @@ class UrlFutureBuilder extends HookWidget {
       imageUrl: imageUrl,
       iconUrl: iconUrl,
       siteName: siteName,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // APIから取得したデータをキャッシュ(保存する)
-    final preview = useMemoized(() => _fetchOgp(url));
-    // キャッシュしたデータを取得する
-    final futureSnapshot = useFuture(preview);
-
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 200),
-      child: futureSnapshot.connectionState == ConnectionState.waiting
-          ? loading()
-          : futureSnapshot.error != null
-              ? error(futureSnapshot.error!, futureSnapshot.stackTrace!)
-              : data(futureSnapshot.data!),
     );
   }
 }

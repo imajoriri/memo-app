@@ -99,46 +99,38 @@ class _UrlPreviewEmbedBuilder extends EmbedBuilder {
     TextStyle textStyle,
   ) {
     final url = node.value.data;
-    return Dismissible(
-      key: UniqueKey(),
-      onDismissed: (direction) {
-        print('Dismissed');
+    return GestureDetector(
+      onTap: () {
+        launchUrl(Uri.parse(url));
       },
-      child: GestureDetector(
-        onTap: () {
-          launchUrl(Uri.parse(url));
-        },
-        child: FocusableActionDetector(
-          mouseCursor: SystemMouseCursors.click,
-          child: Container(
-            alignment: Alignment.centerLeft,
-            // TODO: 横幅目一杯に広がってしまうのを防ぐ。
-            child: UrlFutureBuilder(
-              key: ValueKey(url),
-              url: Uri.parse(url),
-              data: (ogp) => Row(
-                children: [
-                  if (ogp.iconUrl != null)
-                    Image.network(
-                      ogp.iconUrl!,
-                      width: 16,
-                      height: 16,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const SizedBox.shrink(),
-                    ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      ogp.title ?? '',
-                      style: textStyle,
-                      maxLines: 1,
-                    ),
+      child: FocusableActionDetector(
+        mouseCursor: SystemMouseCursors.click,
+        child: Container(
+          alignment: Alignment.centerLeft,
+          child: UrlFutureBuilder(
+            url: Uri.parse(url),
+            data: (ogp) => Row(
+              children: [
+                if (ogp.iconUrl != null)
+                  Image.network(
+                    ogp.iconUrl!,
+                    width: 16,
+                    height: 16,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const SizedBox(width: 16),
                   ),
-                ],
-              ),
-              loading: () => const CircularProgressIndicator(),
-              error: (e, s) => Text(url),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    ogp.title ?? '',
+                    style: textStyle,
+                    maxLines: 1,
+                  ),
+                ),
+              ],
             ),
+            loading: () => const CircularProgressIndicator(),
+            error: (e, s) => Text(url),
           ),
         ),
       ),
