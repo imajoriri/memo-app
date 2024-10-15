@@ -102,14 +102,15 @@ class RichTextEditor extends HookWidget {
               style: config.style!,
               attrs: config.attrs,
               width: config.width!,
+              padding: config.padding!,
             );
           }
 
+          // bullet
           if (isUnordered) {
-            return QuillEditorBulletPoint(
-              style: config.style!,
-              width: config.width!,
-              padding: config.padding!,
+            return Container(
+              alignment: AlignmentDirectional.center,
+              child: const Icon(Icons.circle, size: 8),
             );
           }
 
@@ -206,8 +207,8 @@ DefaultStyles getInstanceMobile(BuildContext context) {
   final themeData = Theme.of(context);
   final defaultTextStyle = DefaultTextStyle.of(context);
   final baseStyle = defaultTextStyle.style.copyWith(
-    fontSize: 16,
-    height: 1.3,
+    fontSize: 17,
+    height: 1.4,
     decoration: TextDecoration.none,
   );
   const baseHorizontalSpacing = HorizontalSpacing(0, 0);
