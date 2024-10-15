@@ -463,8 +463,8 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: master
-      resolved-ref: "7d6cd5f8100264df1ca71c0cad0f779cf19fc0b3"
+      ref: "1.0.0"
+      resolved-ref: "0acf030d105f86e8eae41a4ff76733f85202b8b3"
       url: "https://github.com/imajoriri/flutter-quill.git"
     source: git
     version: "10.8.2"
