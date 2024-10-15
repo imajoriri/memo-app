@@ -29,6 +29,7 @@ jobs:
       - name: clone flutter-quill
         run: |
           echo ${{ github.workspace }}
+          cd ../
           git clone https://github.com/imajoriri/flutter-quill.git
 
       - name: Show Xcode version
