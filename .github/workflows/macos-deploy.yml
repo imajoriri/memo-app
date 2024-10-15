@@ -24,6 +24,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: clone flutter-quill
+        run: |
+          echo ${{ github.workspace }}
+          cd ../
+          git clone https://github.com/imajoriri/flutter-quill.git
+
       - uses: kuhnroyal/flutter-fvm-config-action@v2
         with:
           setup: true
