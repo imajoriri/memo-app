@@ -476,7 +476,7 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: master
+      ref: "6d2f4fd82a6e5d49782a8c198fa43d38e19fdb6b"
       resolved-ref: "6d2f4fd82a6e5d49782a8c198fa43d38e19fdb6b"
       url: "https://github.com/imajoriri/flutter-quill.git"
     source: git

@@ -25,7 +25,7 @@ dependencies:
     # path: ../../../flutter-quill
     git:
       url: https://github.com/imajoriri/flutter-quill.git
-      ref: master
+      ref: 6d2f4fd82a6e5d49782a8c198fa43d38e19fdb6b
   url_launcher: ^6.3.0
 
   widgets:
