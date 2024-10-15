@@ -197,10 +197,10 @@ packages:
     dependency: transitive
     description:
       name: dart_quill_delta
-      sha256: "051853d86d9e40b878d1eaddefa538c69e9177592b2a47bcf32e34165b2ee166"
+      sha256: a3552d7dfe4904ab344ccc7bf6453fd2d966b7ef64a945e364ae18dd486b9569
       url: "https://pub.dev"
     source: hosted
-    version: "10.7.5"
+    version: "10.8.1"
   dart_style:
     dependency: transitive
     description:
@@ -463,8 +463,8 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: "1.0.0"
-      resolved-ref: "0acf030d105f86e8eae41a4ff76733f85202b8b3"
+      ref: master
+      resolved-ref: "6d2f4fd82a6e5d49782a8c198fa43d38e19fdb6b"
       url: "https://github.com/imajoriri/flutter-quill.git"
     source: git
     version: "10.8.2"
