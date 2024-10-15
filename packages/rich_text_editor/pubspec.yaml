@@ -22,10 +22,11 @@ dependencies:
   dio: ^5.7.0
   html: ^0.15.4
   flutter_quill:
-    # path: ../../../flutter-quill
-    git:
-      url: https://github.com/imajoriri/flutter-quill.git
-      ref: master
+    # github actions等で使用する場合はcloneする必要がある
+    path: ../../../flutter-quill
+    # git:
+    #   url: https://github.com/imajoriri/flutter-quill.git
+    #   ref: master
   url_launcher: ^6.3.0
 
   widgets:

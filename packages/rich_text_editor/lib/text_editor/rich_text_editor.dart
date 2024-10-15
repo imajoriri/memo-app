@@ -1,5 +1,6 @@
 // ignore_for_file: unnecessary_overrides
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_quill/extensions.dart';
@@ -64,7 +65,16 @@ class RichTextEditor extends HookWidget {
       controller: controller,
       scrollController: scrollController,
       configurations: QuillEditorConfigurations(
-        customStyles: getInstance(context),
+        customStyles: switch (defaultTargetPlatform) {
+          TargetPlatform.android ||
+          TargetPlatform.iOS =>
+            getInstanceMobile(context),
+          TargetPlatform.macOS ||
+          TargetPlatform.windows ||
+          TargetPlatform.linux =>
+            getInstanceDesktop(context),
+          _ => getInstanceMobile(context),
+        },
         expands: expands,
         scrollPhysics: scrollPhysics,
         padding: padding ?? EdgeInsets.zero,
@@ -76,6 +86,57 @@ class RichTextEditor extends HookWidget {
         embedBuilders: [
           _UrlPreviewEmbedBuilder(),
         ],
+        customLeadingBlockBuilder: (node, config) {
+          final attribute = config.attribute;
+          final attrs = config.attrs;
+          final isUnordered = attribute == Attribute.ul;
+          final isOrdered = attribute == Attribute.ol;
+          final isCheck = attribute == Attribute.checked ||
+              attribute == Attribute.unchecked;
+          final isCodeBlock = attrs.containsKey(Attribute.codeBlock.key);
+          if (isOrdered) {
+            return QuillEditorNumberPoint(
+              index: config.getIndexNumberByIndent!,
+              indentLevelCounts: config.indentLevelCounts,
+              count: config.count,
+              style: config.style!,
+              attrs: config.attrs,
+              width: config.width!,
+            );
+          }
+
+          if (isUnordered) {
+            return QuillEditorBulletPoint(
+              style: config.style!,
+              width: config.width!,
+              padding: config.padding!,
+            );
+          }
+
+          if (isCheck) {
+            return QuillEditorCheckboxPoint(
+              size: config.lineSize!,
+              value: config.value,
+              enabled: config.enabled!,
+              onChanged: config.onCheckboxTap,
+              uiBuilder: config.uiBuilder,
+            );
+          }
+          if (isCodeBlock &&
+              context.requireQuillEditorElementOptions.codeBlock
+                  .enableLineNumbers) {
+            return QuillEditorNumberPoint(
+              index: config.getIndexNumberByIndent!,
+              indentLevelCounts: config.indentLevelCounts,
+              count: config.count,
+              style: config.style!,
+              attrs: config.attrs,
+              width: config.width!,
+              padding: config.padding!,
+            );
+          }
+          return null;
+        },
       ),
     );
   }
@@ -141,12 +202,256 @@ class _UrlPreviewEmbedBuilder extends EmbedBuilder {
 }
 
 // ベースをQuillから持ってきている
-DefaultStyles getInstance(BuildContext context) {
+DefaultStyles getInstanceMobile(BuildContext context) {
   final themeData = Theme.of(context);
   final defaultTextStyle = DefaultTextStyle.of(context);
   final baseStyle = defaultTextStyle.style.copyWith(
     fontSize: 16,
-    height: 1.15,
+    height: 1.3,
+    decoration: TextDecoration.none,
+  );
+  const baseHorizontalSpacing = HorizontalSpacing(0, 0);
+  const baseVerticalSpacing = VerticalSpacing(6, 0);
+  final fontFamily = themeData.isCupertino ? 'Menlo' : 'Roboto Mono';
+
+  final inlineCodeStyle = TextStyle(
+    fontSize: 14,
+    color: themeData.colorScheme.primary.withOpacity(0.8),
+    fontFamily: fontFamily,
+  );
+
+  return DefaultStyles(
+    h1: DefaultTextBlockStyle(
+        defaultTextStyle.style.copyWith(
+          fontSize: 24,
+          color: defaultTextStyle.style.color,
+          letterSpacing: -0.5,
+          height: 1.083,
+          fontWeight: FontWeight.bold,
+          decoration: TextDecoration.none,
+        ),
+        baseHorizontalSpacing,
+        const VerticalSpacing(16, 0),
+        VerticalSpacing.zero,
+        null),
+    h2: DefaultTextBlockStyle(
+        defaultTextStyle.style.copyWith(
+          fontSize: 20,
+          color: defaultTextStyle.style.color,
+          letterSpacing: -0.8,
+          height: 1.067,
+          fontWeight: FontWeight.bold,
+          decoration: TextDecoration.none,
+        ),
+        baseHorizontalSpacing,
+        const VerticalSpacing(8, 0),
+        VerticalSpacing.zero,
+        null),
+    h3: DefaultTextBlockStyle(
+      defaultTextStyle.style.copyWith(
+        fontSize: 16,
+        color: defaultTextStyle.style.color,
+        letterSpacing: -0.5,
+        height: 1.083,
+        fontWeight: FontWeight.bold,
+        decoration: TextDecoration.none,
+      ),
+      baseHorizontalSpacing,
+      const VerticalSpacing(8, 0),
+      VerticalSpacing.zero,
+      null,
+    ),
+    h4: DefaultTextBlockStyle(
+      defaultTextStyle.style.copyWith(
+        fontSize: 14,
+        color: defaultTextStyle.style.color,
+        letterSpacing: -0.4,
+        height: 1.1,
+        fontWeight: FontWeight.bold,
+        decoration: TextDecoration.none,
+      ),
+      baseHorizontalSpacing,
+      const VerticalSpacing(6, 0),
+      VerticalSpacing.zero,
+      null,
+    ),
+    h5: DefaultTextBlockStyle(
+      defaultTextStyle.style.copyWith(
+        fontSize: 12,
+        color: defaultTextStyle.style.color,
+        letterSpacing: -0.2,
+        height: 1.11,
+        fontWeight: FontWeight.bold,
+        decoration: TextDecoration.none,
+      ),
+      baseHorizontalSpacing,
+      const VerticalSpacing(6, 0),
+      VerticalSpacing.zero,
+      null,
+    ),
+    h6: DefaultTextBlockStyle(
+      defaultTextStyle.style.copyWith(
+        fontSize: 10,
+        color: defaultTextStyle.style.color,
+        letterSpacing: -0.1,
+        height: 1.125,
+        fontWeight: FontWeight.bold,
+        decoration: TextDecoration.none,
+      ),
+      baseHorizontalSpacing,
+      const VerticalSpacing(4, 0),
+      VerticalSpacing.zero,
+      null,
+    ),
+    lineHeightNormal: DefaultTextBlockStyle(
+      baseStyle.copyWith(height: 1.15),
+      baseHorizontalSpacing,
+      VerticalSpacing.zero,
+      VerticalSpacing.zero,
+      null,
+    ),
+    lineHeightTight: DefaultTextBlockStyle(
+      baseStyle.copyWith(height: 1.30),
+      baseHorizontalSpacing,
+      VerticalSpacing.zero,
+      VerticalSpacing.zero,
+      null,
+    ),
+    lineHeightOneAndHalf: DefaultTextBlockStyle(
+      baseStyle.copyWith(height: 1.55),
+      baseHorizontalSpacing,
+      VerticalSpacing.zero,
+      VerticalSpacing.zero,
+      null,
+    ),
+    lineHeightDouble: DefaultTextBlockStyle(
+      baseStyle.copyWith(height: 2),
+      baseHorizontalSpacing,
+      VerticalSpacing.zero,
+      VerticalSpacing.zero,
+      null,
+    ),
+    paragraph: DefaultTextBlockStyle(
+      baseStyle,
+      baseHorizontalSpacing,
+      VerticalSpacing.zero,
+      VerticalSpacing.zero,
+      null,
+    ),
+    bold: const TextStyle(fontWeight: FontWeight.bold),
+    subscript: const TextStyle(
+      fontFeatures: [
+        FontFeature.liningFigures(),
+        FontFeature.subscripts(),
+      ],
+    ),
+    superscript: const TextStyle(
+      fontFeatures: [
+        FontFeature.liningFigures(),
+        FontFeature.superscripts(),
+      ],
+    ),
+    italic: const TextStyle(fontStyle: FontStyle.italic),
+    small: const TextStyle(fontSize: 12),
+    underline: const TextStyle(decoration: TextDecoration.underline),
+    strikeThrough: const TextStyle(decoration: TextDecoration.lineThrough),
+    inlineCode: InlineCodeStyle(
+      backgroundColor: Colors.grey.shade100,
+      radius: const Radius.circular(3),
+      style: inlineCodeStyle,
+      header1: inlineCodeStyle.copyWith(
+        fontSize: 32,
+        fontWeight: FontWeight.w500,
+      ),
+      header2: inlineCodeStyle.copyWith(
+        fontSize: 22,
+        fontWeight: FontWeight.w500,
+      ),
+      header3: inlineCodeStyle.copyWith(
+        fontSize: 18,
+        fontWeight: FontWeight.w500,
+      ),
+    ),
+    link: TextStyle(
+      color: themeData.colorScheme.secondary,
+      decoration: TextDecoration.underline,
+    ),
+    placeHolder: DefaultTextBlockStyle(
+        defaultTextStyle.style.copyWith(
+          fontSize: 20,
+          height: 1.5,
+          color: Colors.grey.withOpacity(0.6),
+        ),
+        baseHorizontalSpacing,
+        VerticalSpacing.zero,
+        VerticalSpacing.zero,
+        null),
+    lists: DefaultListBlockStyle(
+      baseStyle,
+      baseHorizontalSpacing,
+      baseVerticalSpacing,
+      const VerticalSpacing(0, 6),
+      null,
+      null,
+    ),
+    quote: DefaultTextBlockStyle(
+      TextStyle(color: baseStyle.color!.withOpacity(0.6)),
+      baseHorizontalSpacing,
+      baseVerticalSpacing,
+      const VerticalSpacing(6, 2),
+      BoxDecoration(
+        border: Border(
+          left: BorderSide(width: 4, color: Colors.grey.shade300),
+        ),
+      ),
+    ),
+    code: DefaultTextBlockStyle(
+        TextStyle(
+          color: Colors.blue.shade900.withOpacity(0.9),
+          fontFamily: fontFamily,
+          fontSize: 13,
+          height: 1.15,
+        ),
+        baseHorizontalSpacing,
+        baseVerticalSpacing,
+        VerticalSpacing.zero,
+        BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(2),
+        )),
+    indent: DefaultTextBlockStyle(
+      baseStyle,
+      baseHorizontalSpacing,
+      baseVerticalSpacing,
+      const VerticalSpacing(0, 6),
+      null,
+    ),
+    align: DefaultTextBlockStyle(
+      baseStyle,
+      baseHorizontalSpacing,
+      VerticalSpacing.zero,
+      VerticalSpacing.zero,
+      null,
+    ),
+    leading: DefaultTextBlockStyle(
+      baseStyle,
+      baseHorizontalSpacing,
+      VerticalSpacing.zero,
+      VerticalSpacing.zero,
+      null,
+    ),
+    sizeSmall: const TextStyle(fontSize: 10),
+    sizeLarge: const TextStyle(fontSize: 18),
+    sizeHuge: const TextStyle(fontSize: 22),
+  );
+}
+
+DefaultStyles getInstanceDesktop(BuildContext context) {
+  final themeData = Theme.of(context);
+  final defaultTextStyle = DefaultTextStyle.of(context);
+  final baseStyle = defaultTextStyle.style.copyWith(
+    fontSize: 16,
+    height: 1.3,
     decoration: TextDecoration.none,
   );
   const baseHorizontalSpacing = HorizontalSpacing(0, 0);

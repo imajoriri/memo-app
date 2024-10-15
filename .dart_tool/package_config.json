@@ -266,10 +266,7 @@
       "languageVersion": "3.0"
     }
   ],
-  "generated": "2024-09-21T07:15:51.593067Z",
+  "generated": "2024-10-15T01:28:03.371965Z",
   "generator": "pub",
-  "generatorVersion": "3.5.3",
-  "flutterRoot": "file:///Users/imajo-takeyuki/fvm/versions/3.24.3",
-  "flutterVersion": "3.24.3",
-  "pubCache": "file:///Users/imajo-takeyuki/.pub-cache"
+  "generatorVersion": "3.0.0"
 }
