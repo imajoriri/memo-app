@@ -26,6 +26,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: clone flutter-quill
+        run: |
+          echo ${{ github.workspace }}
+          git clone https://github.com/imajoriri/flutter-quill.git
+
       - name: Show Xcode version
         run: xcodebuild -version
 

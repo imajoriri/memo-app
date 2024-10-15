@@ -475,11 +475,9 @@ packages:
   flutter_quill:
     dependency: transitive
     description:
-      path: "."
-      ref: "6d2f4fd82a6e5d49782a8c198fa43d38e19fdb6b"
-      resolved-ref: "6d2f4fd82a6e5d49782a8c198fa43d38e19fdb6b"
-      url: "https://github.com/imajoriri/flutter-quill.git"
-    source: git
+      path: "../../../flutter-quill"
+      relative: true
+    source: path
     version: "10.8.2"
   flutter_quill_delta_from_html:
     dependency: transitive
