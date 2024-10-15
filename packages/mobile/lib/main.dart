@@ -115,68 +115,52 @@ class MyHomePage extends HookConsumerWidget {
       // GestureDetectorだとonPointerMoveが呼ばれないのでListenerを使う。
       body: Stack(
         children: [
-          Listener(
-            onPointerMove: (event) {
-              // NOTE: 本来はネイティブの機能を使いたいがFlutterが対応していないため、
-              // 擬似的に対応している。
-              // https://github.com/flutter/flutter/issues/57609
-              final keyboardRect = MediaQuery.of(context).viewInsets.bottom;
-              final bottomPosition =
-                  MediaQuery.of(context).size.height - event.position.dy;
-              // ドラッグがキーボードよりも上の位置から下の位置に移動したら、キーボードを閉じる
-              if (bottomPosition < keyboardRect) {
-                focusNode.unfocus();
-              }
+          GestureDetector(
+            onTap: () {
+              focusNode.requestFocus();
+              controller.moveCursorToEnd();
             },
-            child: GestureDetector(
-              onTap: () {
-                focusNode.requestFocus();
-                controller.moveCursorToEnd();
-              },
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  PullToAddControl(
-                    onPull: (count) async {
-                      if (count >= 1) {
-                        for (var i = 0; i < count; i++) {
-                          controller.addNewLineAndMoveCursorToStart();
-                        }
-                        focusNode.requestFocus();
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                PullToAddControl(
+                  onPull: (count) async {
+                    if (count >= 1) {
+                      for (var i = 0; i < count; i++) {
+                        controller.addNewLineAndMoveCursorToStart();
                       }
-                    },
-                    slivers: [
-                      const SliverToBoxAdapter(
-                        child: Divider(),
-                      ),
-                      SliverToBoxAdapter(
-                        child: RichTextEditor(
-                          expands: false,
-                          controller: controller,
-                          focusNode: focusNode,
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 80, horizontal: 16),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: RichTextEditorToolbar(
-                      padding: switch (deviceTilt) {
-                        DeviceTiltState.right =>
-                          const EdgeInsets.only(left: 100),
-                        DeviceTiltState.left =>
-                          const EdgeInsets.only(right: 100),
-                        _ => EdgeInsets.zero,
-                      },
-                      controller: controller,
+                      focusNode.requestFocus();
+                    }
+                  },
+                  slivers: [
+                    const SliverToBoxAdapter(
+                      child: Divider(),
                     ),
+                    SliverToBoxAdapter(
+                      child: RichTextEditor(
+                        expands: false,
+                        controller: controller,
+                        focusNode: focusNode,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 80, horizontal: 16),
+                      ),
+                    ),
+                  ],
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: RichTextEditorToolbar(
+                    padding: switch (deviceTilt) {
+                      DeviceTiltState.right => const EdgeInsets.only(left: 100),
+                      DeviceTiltState.left => const EdgeInsets.only(right: 100),
+                      _ => EdgeInsets.zero,
+                    },
+                    controller: controller,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           Positioned(
