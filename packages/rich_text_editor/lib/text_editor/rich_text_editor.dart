@@ -3,7 +3,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_quill/extensions.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:rich_text_editor/async/url_future_builder.dart';
 import 'package:rich_text_editor/text_editor/rich_text_editor_controller.dart';
@@ -99,7 +98,9 @@ class RichTextEditor extends HookWidget {
               index: config.getIndexNumberByIndent!,
               indentLevelCounts: config.indentLevelCounts,
               count: config.count,
-              style: config.style!,
+              style: config.style!.merge(const TextStyle(fontFeatures: [
+                FontFeature.tabularFigures(),
+              ])),
               attrs: config.attrs,
               width: config.width!,
               padding: config.padding!,
@@ -108,8 +109,16 @@ class RichTextEditor extends HookWidget {
 
           // bullet
           if (isUnordered) {
+            // return QuillEditorBulletPoint(
+            //   style: config.style!.merge(const TextStyle(
+            //     fontWeight: FontWeight.w900,
+            //   )),
+            //   width: config.width!,
+            //   padding: config.padding! + 6,
+            // );
             return Container(
-              alignment: AlignmentDirectional.center,
+              alignment: AlignmentDirectional.topEnd,
+              padding: EdgeInsets.only(top: 8, right: config.padding! + 6),
               child: const Icon(Icons.circle, size: 8),
             );
           }
@@ -213,7 +222,10 @@ DefaultStyles getInstanceMobile(BuildContext context) {
   );
   const baseHorizontalSpacing = HorizontalSpacing(0, 0);
   const baseVerticalSpacing = VerticalSpacing(6, 0);
-  final fontFamily = themeData.isCupertino ? 'Menlo' : 'Roboto Mono';
+  final fontFamily = defaultTargetPlatform == TargetPlatform.macOS ||
+          defaultTargetPlatform == TargetPlatform.iOS
+      ? 'Menlo'
+      : 'Roboto Mono';
 
   final inlineCodeStyle = TextStyle(
     fontSize: 14,
@@ -335,7 +347,8 @@ DefaultStyles getInstanceMobile(BuildContext context) {
     paragraph: DefaultTextBlockStyle(
       baseStyle,
       baseHorizontalSpacing,
-      VerticalSpacing.zero,
+      // NOTE: ここを変えることで改行ごとの間隔を変えることができる
+      const VerticalSpacing(4, 4),
       VerticalSpacing.zero,
       null,
     ),
@@ -457,7 +470,10 @@ DefaultStyles getInstanceDesktop(BuildContext context) {
   );
   const baseHorizontalSpacing = HorizontalSpacing(0, 0);
   const baseVerticalSpacing = VerticalSpacing(6, 0);
-  final fontFamily = themeData.isCupertino ? 'Menlo' : 'Roboto Mono';
+  final fontFamily = defaultTargetPlatform == TargetPlatform.macOS ||
+          defaultTargetPlatform == TargetPlatform.iOS
+      ? 'Menlo'
+      : 'Roboto Mono';
 
   final inlineCodeStyle = TextStyle(
     fontSize: 14,
