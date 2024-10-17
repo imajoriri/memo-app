@@ -135,23 +135,14 @@ class MyHomePage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Timer? debounce;
-    final controller = useRichTextEditorController();
-    controller.onReplaceText = (index, len, data) {
-      if (debounce?.isActive ?? false) {
-        debounce?.cancel();
-      }
-
-      debounce = Timer(const Duration(milliseconds: 400), () {
-        ref.read(latestMemoProvider.notifier).updateMemo(controller.content);
-      });
-      return true;
-    };
     final session = ref.watch(sessionProvider);
+    final controller = ref.watch(richTextEditorControllerProvider.notifier);
+    final editorState = ref.watch(richTextEditorControllerProvider);
     ref.listen(latestMemoProvider, (previous, next) {
       final previousMemoId = previous?.valueOrNull?.id;
       final memo = next.valueOrNull;
       if (memo?.session != session || memo?.id != previousMemoId) {
-        controller.content = memo?.content ?? '';
+        controller.updateContent(memo?.content ?? '');
       }
     });
 
@@ -161,7 +152,18 @@ class MyHomePage extends HookConsumerWidget {
           children: [
             Expanded(
               child: RichTextEditor(
-                controller: controller,
+                expands: false,
+                editorState: editorState,
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                onContentChanged: (content) {
+                  if (debounce?.isActive ?? false) {
+                    debounce?.cancel();
+                  }
+                  debounce = Timer(const Duration(milliseconds: 400), () {
+                    ref.read(latestMemoProvider.notifier).updateMemo(content);
+                  });
+                },
               ),
             ),
           ],

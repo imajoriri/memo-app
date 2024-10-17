@@ -1,236 +1,210 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:flutter_quill/flutter_quill.dart';
-import 'package:flutter_quill/quill_delta.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-const useRichTextEditorController = _RichTextEditorControllerHookCreator();
+part 'rich_text_editor_controller.g.dart';
 
-class _RichTextEditorControllerHookCreator {
-  const _RichTextEditorControllerHookCreator();
+/*
+- EditorState
+  - Document
+  - Transaction
+  - Selection
+- Document
+  - root: Node
+- Node
+  - type: String
+  - children: List<Node>
+- Transaction
+  - Document
+- Selection
+  - start: Position
+  - end: Position
+- Position
+  - path: List<int>
+  - offset: int
+- Path: List<int>
+*/
 
-  RichTextEditorController call({
+class RichTextEditorState extends EditorState {
+  RichTextEditorState({
     Document? document,
-    ReplaceTextCallback? onReplaceText,
-  }) {
-    return use(_RichTextEditorControllerHook(
-      initialDocument: document,
-      onReplaceText: onReplaceText,
-    ));
-  }
+  }) : super(document: document ?? Document.blank());
+
+  RichTextEditorState.blank() : super(document: Document.blank());
 }
 
-class _RichTextEditorControllerHook extends Hook<RichTextEditorController> {
-  const _RichTextEditorControllerHook({
-    this.initialDocument,
-    this.onReplaceText,
-  });
-
-  final Document? initialDocument;
-  final ReplaceTextCallback? onReplaceText;
-
+@riverpod
+class RichTextEditorController extends _$RichTextEditorController {
   @override
-  _RichTextEditorControllerHookState createState() =>
-      _RichTextEditorControllerHookState();
-}
-
-class _RichTextEditorControllerHookState
-    extends HookState<RichTextEditorController, _RichTextEditorControllerHook> {
-  late final _controller = RichTextEditorController(
-    document: hook.initialDocument ?? Document(),
-    selection: const TextSelection.collapsed(offset: 0),
-    onReplaceText: hook.onReplaceText,
-  );
-
-  @override
-  void initHook() {
-    super.initHook();
+  RichTextEditorState build() {
+    return RichTextEditorState();
   }
 
-  @override
-  RichTextEditorController build(BuildContext context) {
-    return _controller;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-}
-
-class RichTextEditorController extends QuillController {
-  RichTextEditorController({
-    required super.document,
-    required super.selection,
-    super.onReplaceText,
-  });
-
-  String get content => jsonEncode(document.toDelta().toJson());
-
-  set content(String content) {
+  void updateContent(String content) {
+    // TODO: 本来はEditorStateを直接更新するのではなく、
+    // EditorStateかそのdocumentのメソッドで更新したい。
     if (content.isEmpty) {
-      clear();
+      state = RichTextEditorState.blank();
       return;
     }
-    final delta = Delta.fromJson(jsonDecode(content));
-    document = Document.fromDelta(delta);
+    final json = Map<String, Object>.from(jsonDecode(content));
+    final document = Document.fromJson(json);
+    state = RichTextEditorState(document: document);
   }
 
   /// 先頭に改行を入れ、フォーカスする。
   void addNewLineAndMoveCursorToStart() {
-    replaceText(
-      0,
-      0,
-      '\n',
-      null,
+    state.document.insert(
+      [0],
+      [
+        paragraphNode(delta: Delta()..insert('\n')),
+      ],
     );
-    moveCursorToStart();
-  }
-
-  /// サブクラスのclipboardPasteをオーバーライドして、URLがクリップボードにある場合は、URLプレビューを作成する。
-  @override
-  Future<bool> clipboardPaste({void Function()? updateEditor}) async {
-    final text = await Clipboard.getData(Clipboard.kTextPlain);
-    // textがurlかどうか。
-    final url = Uri.tryParse(text?.text ?? '');
-    if (url != null && url.hasAbsolutePath) {
-      _createUrlPreview(
-        url: url.toString(),
-      );
-      return true;
-    }
-    return super.clipboardPaste(updateEditor: updateEditor);
-  }
-
-  Future<void> _createUrlPreview({
-    required String url,
-  }) async {
-    final block = BlockEmbed.custom(
-      _UrlPreviewBlockEmbed.fromUrl(url),
-    );
-    final index = selection.baseOffset;
-    final length = selection.extentOffset - index;
-
-    replaceText(index, length, block, null);
-  }
-
-  bool _getIsCheckedList() {
-    var attribute = toolbarButtonToggler[Attribute.list.key];
-
-    if (attribute == null) {
-      attribute = getSelectionStyle().attributes[Attribute.list.key];
-    } else {
-      // checkbox tapping causes controller.selection to go to offset 0
-      toolbarButtonToggler.remove(Attribute.list.key);
-    }
-
-    if (attribute == null) {
-      return false;
-    }
-    return attribute.value == Attribute.unchecked.value ||
-        attribute.value == Attribute.checked.value;
-  }
-
-  /// 現在のフォーカスしているリストをチェックリストに変換する。
-  void toggleCheckList() {
-    formatSelection(
-      _getIsCheckedList()
-          ? Attribute.clone(Attribute.unchecked, null)
-          : Attribute.unchecked,
-    );
-  }
-
-  bool getIsList({
-    required Attribute attribute,
-  }) {
-    if (attribute.key == Attribute.list.key ||
-        attribute.key == Attribute.header.key ||
-        attribute.key == Attribute.script.key ||
-        attribute.key == Attribute.align.key) {
-      final attr = getSelectionStyle().attributes[attribute.key];
-      if (attr == null) {
-        return false;
-      }
-      return attr.value == attribute.value;
-    }
-    return getSelectionStyle().attributes.containsKey(attribute.key);
-  }
-
-  // 参考: [QuillToolbarToggleStyleButtonState]
-  void toggleList(Attribute attribute) {
-    formatSelection(
-      getIsList(attribute: attribute)
-          ? Attribute.clone(attribute, null)
-          : attribute,
+    // フォーカスを先頭に移動する。
+    state.updateSelectionWithReason(
+      Selection.single(
+        path: [0],
+        startOffset: 0,
+      ),
+      reason: SelectionUpdateReason.uiEvent,
     );
   }
 
   /// 現在の行を削除する。
   void deleteCurrentLine() {
-    final currentDelta = document.toDelta();
-    // 現在のoffsetを取得
-    final offset = selection.baseOffset;
-
-    // offsetの行の先頭のoffsetを取得
-    final text = document.toPlainText();
-    // 改行のoffset一覧
-    final lineBreaks = [];
-    var tmp = 0;
-    text.split('\n').forEach((e) {
-      lineBreaks.add(tmp);
-      tmp += e.length + 1;
-    });
-    final startOffset = lineBreaks.lastWhere((e) => e <= offset);
-    final endOffset = lineBreaks.firstWhere((e) => e > offset);
-    try {
-      replaceText(
-        startOffset,
-        endOffset - startOffset,
-        '',
-        TextSelection.collapsed(offset: startOffset),
-      );
-    } catch (e) {
-      // 元のdeltaに戻す
-      document = Document.fromDelta(currentDelta);
+    // 現在のpath
+    final path = state.selection?.start.path;
+    if (path == null) {
+      return;
     }
+    final node = state.getNodeAtPath(path);
+
+    final transaction = state.transaction;
+    transaction.deleteNode(
+      node!,
+    );
+    state.apply(
+      transaction,
+      withUpdateSelection: false,
+    );
+
+    // 元いた行にフォーカスを移動する。
+    state.updateSelectionWithReason(
+      Selection.single(
+        path: path,
+        startOffset: 0,
+      ),
+      reason: SelectionUpdateReason.uiEvent,
+    );
   }
 
   /// 現在の行の下に新しい行を追加する。
   void addNewLineToCurrentLine() {
-    final currentDelta = document.toDelta();
-    // 現在のoffsetを取得
-    final offset = selection.baseOffset;
-
-    // offsetの行の先頭のoffsetを取得
-    final text = document.toPlainText();
-    // 改行のoffset一覧
-    final lineBreaks = [];
-    var tmp = 0;
-    text.split('\n').forEach((e) {
-      lineBreaks.add(tmp);
-      tmp += e.length + 1;
-    });
-    final endOffset = lineBreaks.firstWhere((e) => e > offset);
-    try {
-      replaceText(
-        endOffset,
-        0,
-        '\n',
-        TextSelection.collapsed(offset: endOffset),
-      );
-    } catch (e) {
-      // 元のdeltaに戻す
-      document = Document.fromDelta(currentDelta);
+    final currentPath = state.selection?.end.path;
+    if (currentPath == null) {
+      return;
     }
+    final transaction = state.transaction;
+    transaction.insertNodes(
+      [currentPath.first + 1],
+      [paragraphNode(delta: Delta()..insert(''))],
+    );
+    state.apply(
+      transaction,
+      withUpdateSelection: false,
+    );
+
+    // 追加した行にフォーカスを移動する。
+    state.updateSelectionWithReason(
+      Selection.single(
+        path: [currentPath.first + 1],
+        startOffset: 0,
+      ),
+      reason: SelectionUpdateReason.uiEvent,
+    );
   }
-}
 
-class _UrlPreviewBlockEmbed extends CustomBlockEmbed {
-  final String url;
+  /// 現在の行をチェックボックスにする。
+  void toggleCheckbox() {
+    final selection = state.selection;
+    if (selection == null) {
+      return;
+    }
+    final node = state.getNodeAtPath(selection.start.path);
+    if (node == null) {
+      return;
+    }
+    final isTodoList = node.type == TodoListBlockKeys.type;
 
-  _UrlPreviewBlockEmbed.fromUrl(this.url) : super('url_preview', url);
+    state.formatNode(
+      selection,
+      (node) => node.copyWith(
+        type: isTodoList ? ParagraphBlockKeys.type : TodoListBlockKeys.type,
+        attributes: {
+          TodoListBlockKeys.checked: false,
+          ParagraphBlockKeys.delta: (node.delta ?? Delta()).toJson(),
+        },
+      ),
+    );
+  }
 
-  Document get document => Document.fromJson(jsonDecode(data));
+  /// 現在の行をbulletにする。
+  void toggleBullet() {
+    final selection = state.selection;
+    if (selection == null) {
+      return;
+    }
+    final node = state.getNodeAtPath(selection.start.path);
+    if (node == null) {
+      return;
+    }
+    final isTodoList = node.type == BulletedListBlockKeys.type;
+
+    state.formatNode(
+      selection,
+      (node) => node.copyWith(
+        type: isTodoList ? ParagraphBlockKeys.type : BulletedListBlockKeys.type,
+        attributes: {
+          ParagraphBlockKeys.delta: (node.delta ?? Delta()).toJson(),
+        },
+      ),
+    );
+  }
+
+  /// インデントをプラスする
+  void increaseIndent() {
+    indentCommand.execute(state);
+  }
+
+  /// インデントをマイナスする
+  void decreaseIndent() {
+    outdentCommand.execute(state);
+  }
+
+  /// Headerにする。
+  void toggleHeader(int level) {
+    final selection = state.selection;
+    if (selection == null) {
+      return;
+    }
+    final node = state.getNodeAtPath(selection.start.path);
+    if (node == null) {
+      return;
+    }
+    // Headerかつlevelが一致しているかどうか。
+    // Header1の場合にHeader2に変更するときに、Paragraphに変更されてしまうため。
+    final isHeader = node.type == HeadingBlockKeys.type &&
+        node.attributes[HeadingBlockKeys.level] == level;
+    state.formatNode(
+      selection,
+      (node) => node.copyWith(
+        type: isHeader ? ParagraphBlockKeys.type : HeadingBlockKeys.type,
+        attributes: {
+          HeadingBlockKeys.level: level,
+          HeadingBlockKeys.delta: (node.delta ?? Delta()).toJson(),
+        },
+      ),
+    );
+  }
 }

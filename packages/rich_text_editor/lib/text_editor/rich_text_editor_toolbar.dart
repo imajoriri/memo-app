@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart';
 import 'package:rich_text_editor/text_editor/rich_text_editor_controller.dart';
 
 class RichTextEditorToolbar extends StatelessWidget {
@@ -14,94 +13,99 @@ class RichTextEditorToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const toolbarConfigurations = QuillToolbarConfigurations();
-    // return QuillSimpleToolbar(
-    //   configurations: QuillSimpleToolbarConfigurations(),
-    //   controller: controller,
-    // );
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutExpo,
       color: Colors.grey[200],
       padding: padding,
-      child: QuillToolbar(
-        configurations: toolbarConfigurations,
-        child: Row(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    // QuillSimpleToolbar参照
-                    QuillToolbarToggleCheckListButton(
-                      options:
-                          toolbarConfigurations.buttonOptions.toggleCheckList,
-                      controller: controller,
-                    ),
-                    QuillToolbarToggleStyleButton(
-                      attribute: Attribute.ol,
-                      options: toolbarConfigurations.buttonOptions.listNumbers,
-                      controller: controller,
-                    ),
-                    QuillToolbarToggleStyleButton(
-                      attribute: Attribute.ul,
-                      options: toolbarConfigurations.buttonOptions.listBullets,
-                      controller: controller,
-                    ),
-                    QuillToolbarToggleStyleButton(
-                      attribute: Attribute.bold,
-                      options: toolbarConfigurations.buttonOptions.bold,
-                      controller: controller,
-                    ),
-                    QuillToolbarIndentButton(
-                      controller: controller,
-                      isIncrease: true,
-                      options:
-                          toolbarConfigurations.buttonOptions.indentIncrease,
-                    ),
-                    QuillToolbarIndentButton(
-                      controller: controller,
-                      isIncrease: false,
-                      options:
-                          toolbarConfigurations.buttonOptions.indentDecrease,
-                    ),
-                    QuillToolbarSelectHeaderStyleButtons(
-                      controller: controller,
-                      options: toolbarConfigurations
-                          .buttonOptions.selectHeaderStyleButtons,
-                    ),
+      child: Row(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  // 現在の行をチェックボックスにする
+                  IconButton(
+                    onPressed: () {
+                      controller.toggleCheckbox();
+                    },
+                    icon: const Icon(Icons.check_box),
+                  ),
 
-                    // 現在の行を削除するボタン
-                    IconButton(
-                      onPressed: () {
-                        controller.deleteCurrentLine();
-                      },
-                      icon: const Icon(Icons.delete),
-                    ),
+                  // 現在の行をbulletにする
+                  IconButton(
+                    onPressed: () {
+                      controller.toggleBullet();
+                    },
+                    icon: const Icon(Icons.format_list_bulleted),
+                  ),
 
-                    // 現在の行の下に新しい行を追加するボタン
-                    IconButton(
-                      onPressed: () {
-                        controller.addNewLineToCurrentLine();
-                      },
-                      icon: const Icon(Icons.add),
-                    ),
-                  ],
-                ),
+                  // インデントをプラスする
+                  IconButton(
+                    onPressed: () {
+                      controller.increaseIndent();
+                    },
+                    icon: const Icon(Icons.format_indent_increase),
+                  ),
+
+                  // インデントをマイナスする
+                  IconButton(
+                    onPressed: () {
+                      controller.decreaseIndent();
+                    },
+                    icon: const Icon(Icons.format_indent_decrease),
+                  ),
+
+                  // 現在の行をHeaderにする
+                  IconButton(
+                    onPressed: () {
+                      controller.toggleHeader(1);
+                    },
+                    icon: const Icon(Icons.format_bold),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      controller.toggleHeader(2);
+                    },
+                    icon: const Icon(Icons.format_bold),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      controller.toggleHeader(3);
+                    },
+                    icon: const Icon(Icons.format_bold),
+                  ),
+
+                  // 現在の行を削除するボタン
+                  IconButton(
+                    onPressed: () {
+                      controller.deleteCurrentLine();
+                    },
+                    icon: const Icon(Icons.delete),
+                  ),
+
+                  // 現在の行の下に新しい行を追加するボタン
+                  IconButton(
+                    onPressed: () {
+                      controller.addNewLineToCurrentLine();
+                    },
+                    icon: const Icon(Icons.add),
+                  ),
+                ],
               ),
             ),
+          ),
 
-            // キーボード閉じるボタン
-            IconButton(
-              onPressed: () {
-                // キーボードを閉じる
-                FocusScope.of(context).unfocus();
-              },
-              icon: const Icon(Icons.keyboard_hide),
-            ),
-          ],
-        ),
+          // キーボード閉じるボタン
+          IconButton(
+            onPressed: () {
+              // キーボードを閉じる
+              FocusScope.of(context).unfocus();
+            },
+            icon: const Icon(Icons.keyboard_hide),
+          ),
+        ],
       ),
     );
   }

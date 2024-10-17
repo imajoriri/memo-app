@@ -27,6 +27,8 @@ dependencies:
     # git:
     #   url: https://github.com/imajoriri/flutter-quill.git
     #   ref: master
+  appflowy_editor:
+    path: ../../../appflowy-editor
   url_launcher: ^6.3.0
 
   widgets:

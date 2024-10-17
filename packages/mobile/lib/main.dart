@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/web.dart';
 import 'package:mobile/widget/pull_to_add.dart';
@@ -13,7 +12,6 @@ import 'package:model/controller/latest_memo.dart';
 import 'package:rich_text_editor/text_editor/rich_text_editor.dart';
 import 'package:rich_text_editor/text_editor/rich_text_editor_controller.dart';
 import 'package:rich_text_editor/text_editor/rich_text_editor_toolbar.dart';
-import 'package:rich_text_editor/text_editor/rich_text_slide_tap_bar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -82,27 +80,18 @@ class MyHomePage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Timer? debounce;
-    final controller = useRichTextEditorController();
-    controller.onReplaceText = (index, len, data) {
-      if (debounce?.isActive ?? false) {
-        debounce?.cancel();
-      }
-
-      debounce = Timer(const Duration(milliseconds: 400), () {
-        ref.read(latestMemoProvider.notifier).updateMemo(controller.content);
-      });
-      return true;
-    };
     final session = ref.watch(sessionProvider);
+    final controller = ref.watch(richTextEditorControllerProvider.notifier);
+    final editorState = ref.watch(richTextEditorControllerProvider);
     ref.listen(latestMemoProvider, (previous, next) {
       final previousMemoId = previous?.valueOrNull?.id;
       final memo = next.valueOrNull;
       if (memo?.session != session || memo?.id != previousMemoId) {
-        controller.content = memo?.content ?? '';
+        controller.updateContent(memo?.content ?? '');
       }
     });
 
-    final focusNode = useFocusNode();
+    final focusNode = FocusNode();
 
     final deviceTilt = ref.watch(deviceTiltProvider);
     ref.listen(deviceTiltProvider, (previous, next) {
@@ -112,61 +101,49 @@ class MyHomePage extends HookConsumerWidget {
     });
 
     return Scaffold(
-      // GestureDetectorだとonPointerMoveが呼ばれないのでListenerを使う。
       body: Stack(
+        fit: StackFit.expand,
         children: [
-          GestureDetector(
-            onTap: () {
-              focusNode.requestFocus();
-              controller.moveCursorToEnd();
+          PullToAddControl(
+            onPull: (count) async {
+              if (count >= 1) {
+                for (var i = 0; i < count; i++) {
+                  controller.addNewLineAndMoveCursorToStart();
+                }
+              }
             },
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                PullToAddControl(
-                  onPull: (count) async {
-                    if (count >= 1) {
-                      for (var i = 0; i < count; i++) {
-                        controller.addNewLineAndMoveCursorToStart();
-                      }
-                      focusNode.requestFocus();
+            slivers: [
+              SliverFillRemaining(
+                child: RichTextEditor(
+                  expands: false,
+                  editorState: editorState,
+                  focusNode: focusNode,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 80, horizontal: 16),
+                  onContentChanged: (content) {
+                    if (debounce?.isActive ?? false) {
+                      debounce?.cancel();
                     }
+                    debounce = Timer(const Duration(milliseconds: 400), () {
+                      ref.read(latestMemoProvider.notifier).updateMemo(content);
+                    });
                   },
-                  slivers: [
-                    const SliverToBoxAdapter(
-                      child: Divider(),
-                    ),
-                    SliverToBoxAdapter(
-                      child: RichTextEditor(
-                        expands: false,
-                        controller: controller,
-                        focusNode: focusNode,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 80, horizontal: 16),
-                      ),
-                    ),
-                  ],
                 ),
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: RichTextEditorToolbar(
-                    padding: switch (deviceTilt) {
-                      DeviceTiltState.right => const EdgeInsets.only(left: 100),
-                      DeviceTiltState.left => const EdgeInsets.only(right: 100),
-                      _ => EdgeInsets.zero,
-                    },
-                    controller: controller,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
           Positioned(
-            bottom: 80,
-            right: 20,
-            child: RichTextSlideTapBar(controller: controller),
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: RichTextEditorToolbar(
+              padding: switch (deviceTilt) {
+                DeviceTiltState.right => const EdgeInsets.only(left: 100),
+                DeviceTiltState.left => const EdgeInsets.only(right: 100),
+                _ => EdgeInsets.zero,
+              },
+              controller: controller,
+            ),
           ),
         ],
       ),
