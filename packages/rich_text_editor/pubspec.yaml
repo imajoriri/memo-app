@@ -30,6 +30,7 @@ dependencies:
   appflowy_editor:
     path: ../../../appflowy-editor
   url_launcher: ^6.3.0
+  provider: ^6.0.5
 
   widgets:
 

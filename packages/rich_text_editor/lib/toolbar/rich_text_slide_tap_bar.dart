@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart';
-import 'package:rich_text_editor/text_editor/rich_text_editor_controller.dart';
+import 'package:rich_text_editor/controller/rich_text_editor_controller.dart';
 import 'package:widgets/button/slide_tap.dart';
 
 class RichTextSlideTapBar extends StatelessWidget {
