@@ -31,6 +31,7 @@ jobs:
           echo ${{ github.workspace }}
           cd ../
           git clone https://github.com/imajoriri/flutter-quill.git
+          git clone https://github.com/imajoriri/appflowy-editor
 
       - name: Show Xcode version
         run: xcodebuild -version
