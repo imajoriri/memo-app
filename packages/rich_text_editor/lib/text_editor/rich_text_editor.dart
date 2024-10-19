@@ -47,6 +47,7 @@ class RichTextEditor extends HookWidget {
     });
     final blockComponentBuildersForDragging =
         useState(_buildBlockComponentBuilders());
+    const tilePadding = EdgeInsets.symmetric(horizontal: 4, vertical: 2);
 
     return Padding(
       padding: padding ?? EdgeInsets.zero,
@@ -76,6 +77,7 @@ class RichTextEditor extends HookWidget {
             blockComponentContext.node.copyWith(),
           );
           return _RichTextTile(
+            padding: tilePadding,
             blockComponentContext: blockComponentContext,
             editorState: editorState,
             blockComponentBuilders: blockComponentBuildersForDragging.value,
@@ -121,6 +123,7 @@ class RichTextEditor extends HookWidget {
               editorState: editorState,
               blockComponentBuilders: blockComponentBuildersForDragging.value,
               blockComponentContext: blockComponentContextForFeedback,
+              padding: tilePadding,
             ),
             child: child,
           );
@@ -203,12 +206,12 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilders() {
     ),
   );
 
-  map.forEach((key, value) {
-    // 1行ごとのpaddingを設定
-    value.configuration = value.configuration.copyWith(
-      padding: (_) => const EdgeInsets.symmetric(vertical: 8.0),
-    );
-  });
+  // map.forEach((key, value) {
+  //   // 1行ごとのpaddingを設定
+  //   value.configuration = value.configuration.copyWith(
+  //     padding: (_) => const EdgeInsets.symmetric(vertical: 8.0),
+  //   );
+  // });
   return map;
 }
 

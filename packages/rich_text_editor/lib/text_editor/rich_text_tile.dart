@@ -8,6 +8,7 @@ class _RichTextTile extends StatelessWidget {
     required this.blockComponentContext,
     required this.editorState,
     required this.blockComponentBuilders,
+    required this.padding,
     this.onDragStarted,
     this.onDragUpdate,
     this.onDragEnd,
@@ -22,6 +23,7 @@ class _RichTextTile extends StatelessWidget {
   final void Function()? onDragStarted;
   final void Function(DragUpdateDetails)? onDragUpdate;
   final void Function(DraggableDetails)? onDragEnd;
+  final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context) {
@@ -30,20 +32,23 @@ class _RichTextTile extends StatelessWidget {
       onDismissed: (direction) {
         print('dismissed');
       },
-      child: Stack(
-        children: [
-          child,
-          Positioned(
-            top: 0,
-            right: 0,
-            child: IconButton(
-              onPressed: () {
-                // editorState.insertPlainText('Hello');
-              },
-              icon: Icon(Icons.add),
+      child: Padding(
+        padding: padding,
+        child: Stack(
+          children: [
+            child,
+            Positioned(
+              top: 0,
+              right: 0,
+              child: IconButton(
+                onPressed: () {
+                  // editorState.insertPlainText('Hello');
+                },
+                icon: Icon(Icons.add),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
 
