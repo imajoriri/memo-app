@@ -19,7 +19,6 @@ class RichTextEditor extends HookWidget {
     required this.editorState,
     required this.focusNode,
     this.scrollController,
-    this.expands = true,
     this.scrollPhysics,
     this.padding,
     this.onContentChanged,
@@ -28,7 +27,6 @@ class RichTextEditor extends HookWidget {
   final RichTextEditorState editorState;
   final FocusNode focusNode;
   final ScrollController? scrollController;
-  final bool expands;
   final ScrollPhysics? scrollPhysics;
   final EdgeInsets? padding;
   final Function(String)? onContentChanged;
@@ -61,7 +59,6 @@ class RichTextEditor extends HookWidget {
         editorState: editorState,
         editorScrollController: editorScrollController,
         enableAutoComplete: true,
-        shrinkWrap: true,
         editorStyle: const EditorStyle.mobile(
           padding: EdgeInsets.zero,
         ),
@@ -73,9 +70,6 @@ class RichTextEditor extends HookWidget {
           ...standardCharacterShortcutEvents,
         ],
         autoFocus: true,
-        dropTargetStyle: const AppFlowyDropTargetStyle(
-          color: Colors.red,
-        ),
         buildWrapper: (context, child, node, blockComponentContext) {
           final blockComponentContextForFeedback = BlockComponentContext(
             context,
