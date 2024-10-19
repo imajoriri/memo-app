@@ -1,6 +1,6 @@
 part of 'rich_text_editor.dart';
 
-class _RichTextTile extends StatelessWidget {
+class _RichTextTile extends StatefulWidget {
   const _RichTextTile({
     super.key,
     required this.child,
@@ -9,6 +9,7 @@ class _RichTextTile extends StatelessWidget {
     required this.editorState,
     required this.blockComponentBuilders,
     required this.padding,
+    required this.hasFocus,
     this.onDragStarted,
     this.onDragUpdate,
     this.onDragEnd,
@@ -24,40 +25,50 @@ class _RichTextTile extends StatelessWidget {
   final void Function(DragUpdateDetails)? onDragUpdate;
   final void Function(DraggableDetails)? onDragEnd;
   final EdgeInsets padding;
+  final bool hasFocus;
 
+  @override
+  State<_RichTextTile> createState() => _RichTextTileState();
+}
+
+class _RichTextTileState extends State<_RichTextTile> {
   @override
   Widget build(BuildContext context) {
     final tile = Dismissible(
-      key: Key(blockComponentContext.node.id),
+      key: Key(widget.blockComponentContext.node.id),
       onDismissed: (direction) {
         print('dismissed');
       },
       child: Padding(
-        padding: padding,
+        padding: widget.padding,
         child: Stack(
           children: [
-            child,
-            Positioned(
-              top: 0,
-              right: 0,
-              child: IconButton(
-                onPressed: () {
-                  // editorState.insertPlainText('Hello');
-                },
-                icon: Icon(Icons.add),
-              ),
-            ),
+            widget.child,
+            // Positioned(
+            //   top: 0,
+            //   right: 0,
+            //   child: IconButton(
+            //     onPressed: () {
+            //       // editorState.insertPlainText('Hello');
+            //     },
+            //     icon: Icon(Icons.add),
+            //   ),
+            // ),
           ],
         ),
       ),
     );
 
+    if (widget.hasFocus) {
+      return tile;
+    }
+
     return LongPressDraggable<Node>(
-      data: blockComponentContext.node,
-      onDragStarted: onDragStarted,
-      onDragUpdate: onDragUpdate,
-      onDragEnd: onDragEnd,
-      feedback: feedback,
+      data: widget.blockComponentContext.node,
+      onDragStarted: widget.onDragStarted,
+      onDragUpdate: widget.onDragUpdate,
+      onDragEnd: widget.onDragEnd,
+      feedback: widget.feedback,
       child: tile,
     );
   }

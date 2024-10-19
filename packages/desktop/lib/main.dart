@@ -154,6 +154,7 @@ class MyHomePage extends HookConsumerWidget {
               child: RichTextEditor(
                 expands: false,
                 editorState: editorState,
+                focusNode: useFocusNode(),
                 padding:
                     const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                 onContentChanged: (content) {

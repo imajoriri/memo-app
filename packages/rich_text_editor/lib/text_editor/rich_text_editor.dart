@@ -17,7 +17,7 @@ class RichTextEditor extends HookWidget {
   const RichTextEditor({
     super.key,
     required this.editorState,
-    this.focusNode,
+    required this.focusNode,
     this.scrollController,
     this.expands = true,
     this.scrollPhysics,
@@ -26,7 +26,7 @@ class RichTextEditor extends HookWidget {
   });
 
   final RichTextEditorState editorState;
-  final FocusNode? focusNode;
+  final FocusNode focusNode;
   final ScrollController? scrollController;
   final bool expands;
   final ScrollPhysics? scrollPhysics;
@@ -48,6 +48,11 @@ class RichTextEditor extends HookWidget {
     final blockComponentBuildersForDragging =
         useState(_buildBlockComponentBuilders());
     const tilePadding = EdgeInsets.symmetric(horizontal: 4, vertical: 2);
+
+    final hasFocus = useState(false);
+    focusNode.addListener(() {
+      hasFocus.value = focusNode.hasFocus;
+    });
 
     return Padding(
       padding: padding ?? EdgeInsets.zero,
@@ -81,8 +86,8 @@ class RichTextEditor extends HookWidget {
             blockComponentContext: blockComponentContext,
             editorState: editorState,
             blockComponentBuilders: blockComponentBuildersForDragging.value,
+            hasFocus: hasFocus.value,
             onDragStarted: () {
-              debugPrint('onDragStarted');
               editorState.selectionService.removeDropTarget();
             },
             onDragUpdate: (details) {
