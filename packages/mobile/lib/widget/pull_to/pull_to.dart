@@ -105,7 +105,6 @@ class _PullToAddControlState extends State<PullToControl> {
   // Pull To Addの状態を計算して返す。
   void transitionNextState({
     required ScrollNotification notification,
-    required PullToMode mode,
   }) async {
     if (notification is! ScrollUpdateNotification) {
       return;
@@ -214,7 +213,6 @@ class _PullToAddControlState extends State<PullToControl> {
                   .addPostFrameCallback((Duration timestamp) {
                 transitionNextState(
                   notification: notification,
-                  mode: mode,
                 );
               });
               return false;
