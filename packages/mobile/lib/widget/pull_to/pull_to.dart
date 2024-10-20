@@ -49,7 +49,7 @@ class PullToControl extends StatefulWidget {
       clipBehavior: Clip.none,
       children: [
         Positioned(
-          top: 100,
+          top: MediaQuery.paddingOf(context).top + 8,
           left: 0.0,
           right: 0.0,
           child: _buildIndicatorForRefreshState(
@@ -76,15 +76,15 @@ class PullToControl extends StatefulWidget {
           child: const Icon(Icons.arrow_downward),
         ),
       PullToMode.overFirstThreshold => const BounceText(
-          key: ValueKey('Write something here'),
+          key: ValueKey('pull_to_1'),
           child: Text('Write something here', textAlign: TextAlign.center),
         ),
       PullToMode.overSecondThreshold => const BounceText(
-          key: ValueKey('add two lines'),
-          child: Text('add two lines', textAlign: TextAlign.center),
+          key: ValueKey('pull_to_2'),
+          child: Text('Add two new lines', textAlign: TextAlign.center),
         ),
-      PullToMode.doing => const Text('doing', textAlign: TextAlign.center),
-      PullToMode.done => const Text('done', textAlign: TextAlign.center),
+      PullToMode.doing => const SizedBox.shrink(),
+      PullToMode.done => const SizedBox.shrink(),
     };
   }
 

@@ -22,6 +22,8 @@ class RichTextEditor extends HookWidget {
     this.scrollPhysics,
     this.padding,
     this.onContentChanged,
+    this.header,
+    this.footer,
   });
 
   final RichTextEditorState editorState;
@@ -30,6 +32,8 @@ class RichTextEditor extends HookWidget {
   final ScrollPhysics? scrollPhysics;
   final EdgeInsets? padding;
   final Function(String)? onContentChanged;
+  final Widget? header;
+  final Widget? footer;
 
   @override
   Widget build(BuildContext context) {
@@ -53,8 +57,10 @@ class RichTextEditor extends HookWidget {
     });
 
     return Padding(
-      padding: padding ?? EdgeInsets.zero,
+      padding: EdgeInsets.zero,
       child: AppFlowyEditor(
+        header: header,
+        footer: footer,
         focusNode: focusNode,
         editorState: editorState,
         editorScrollController: editorScrollController,

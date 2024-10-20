@@ -106,9 +106,10 @@ class MyHomePage extends HookConsumerWidget {
         children: [
           PullToControl(
             child: RichTextEditor(
+              header: SizedBox(height: MediaQuery.paddingOf(context).top),
               editorState: editorState,
               focusNode: focusNode,
-              padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 16),
+              padding: MediaQuery.paddingOf(context),
               onContentChanged: (content) {
                 if (debounce?.isActive ?? false) {
                   debounce?.cancel();
