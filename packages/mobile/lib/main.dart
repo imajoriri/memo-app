@@ -11,7 +11,7 @@ import 'package:model/firebase_options.dart';
 import 'package:model/controller/latest_memo.dart';
 import 'package:rich_text_editor/text_editor/rich_text_editor.dart';
 import 'package:rich_text_editor/controller/rich_text_editor_controller.dart';
-import 'package:rich_text_editor/text_editor/rich_text_editor_toolbar.dart';
+import 'package:rich_text_editor/toolbar/rich_text_editor_toolbar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
