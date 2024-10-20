@@ -152,7 +152,6 @@ class MyHomePage extends HookConsumerWidget {
           children: [
             Expanded(
               child: RichTextEditor(
-                expands: false,
                 editorState: editorState,
                 focusNode: useFocusNode(),
                 padding:

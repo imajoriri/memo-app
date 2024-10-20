@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/web.dart';
-import 'package:mobile/widget/pull_to_add.dart';
+import 'package:mobile/widget/pull_to/pull_to.dart';
 import 'package:model/controller/device_tilt.dart';
 import 'package:model/controller/session.dart';
 import 'package:model/firebase_options.dart';
@@ -104,7 +104,20 @@ class MyHomePage extends HookConsumerWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          PullToAddControl(
+          PullToControl(
+            child: RichTextEditor(
+              editorState: editorState,
+              focusNode: focusNode,
+              padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 16),
+              onContentChanged: (content) {
+                if (debounce?.isActive ?? false) {
+                  debounce?.cancel();
+                }
+                debounce = Timer(const Duration(milliseconds: 400), () {
+                  ref.read(latestMemoProvider.notifier).updateMemo(content);
+                });
+              },
+            ),
             onPull: (count) async {
               if (count >= 1) {
                 for (var i = 0; i < count; i++) {
@@ -112,25 +125,6 @@ class MyHomePage extends HookConsumerWidget {
                 }
               }
             },
-            slivers: [
-              SliverFillRemaining(
-                child: RichTextEditor(
-                  expands: false,
-                  editorState: editorState,
-                  focusNode: focusNode,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 80, horizontal: 16),
-                  onContentChanged: (content) {
-                    if (debounce?.isActive ?? false) {
-                      debounce?.cancel();
-                    }
-                    debounce = Timer(const Duration(milliseconds: 400), () {
-                      ref.read(latestMemoProvider.notifier).updateMemo(content);
-                    });
-                  },
-                ),
-              ),
-            ],
           ),
           Positioned(
             bottom: 0,

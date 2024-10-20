@@ -1,12 +1,13 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show clampDouble;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:mobile/widget/pull_to/pull_to_builder.dart';
+import 'package:mobile/widget/pull_to/pull_to_mode.dart';
 
 const double _kActivityIndicatorRadius = 14.0;
 
@@ -168,38 +169,8 @@ class _RenderSliverPullToAdd extends RenderSliver
   void applyPaintTransform(RenderObject child, Matrix4 transform) {}
 }
 
-enum RefreshIndicatorMode {
-  /// 初期状態
-  inactive,
-
-  /// 初期状態から最初の閾値までの間
-  drag,
-
-  /// 閾値を超えた
-  overFirstThreshold,
-
-  /// 閾値を超えた
-  overSecondThreshold,
-
-  animating,
-  done,
-}
-
-/// リフレッシュコントロールの現在の状態と利用可能なスペースに応じて、リフレッシュインジケーターのスペースに表示する異なるウィジェットを作成できるビルダーのシグネチャ。
-///
-/// `refreshTriggerPullDistance`と`refreshIndicatorExtent`のパラメータは、[CupertinoSliverRefreshControl]に渡されるのと同じ値です。
-///
-/// `pulledExtent`パラメータは、オーバースクロールから得られるか、リフレッシュ中にスライバーによって保持される現在の利用可能なスペースです。
-typedef RefreshControlIndicatorBuilder = Widget Function(
-  BuildContext context,
-  RefreshIndicatorMode refreshState,
-  double pulledExtent,
-  double refreshTriggerPullDistance,
-  double refreshIndicatorExtent,
-);
-
-class PullToAddControl extends HookWidget {
-  const PullToAddControl({
+class SliverPullToControl extends HookWidget {
+  const SliverPullToControl({
     super.key,
     required this.slivers,
     required this.onPull,
@@ -221,17 +192,17 @@ class PullToAddControl extends HookWidget {
   /// [onPull]が実行中に占領されるスペースの量。
   final double refreshIndicatorExtent;
 
-  final RefreshControlIndicatorBuilder builder;
+  final PullToIndicatorBuilder builder;
 
   final Future<void> Function(int count) onPull;
 
-  static Widget buildRefreshIndicator(
-    BuildContext context,
-    RefreshIndicatorMode refreshState,
-    double pulledExtent,
-    double refreshTriggerPullDistance,
-    double refreshIndicatorExtent,
-  ) {
+  static Widget buildRefreshIndicator({
+    required BuildContext context,
+    required PullToMode mode,
+    required double pulledExtent,
+    required double refreshTriggerPullDistance,
+    required double refreshIndicatorExtent,
+  }) {
     final double percentageComplete =
         clampDouble(pulledExtent / refreshTriggerPullDistance, 0.0, 1.0);
 
@@ -243,7 +214,7 @@ class PullToAddControl extends HookWidget {
           left: 0.0,
           right: 0.0,
           child: _buildIndicatorForRefreshState(
-            refreshState,
+            mode,
             _kActivityIndicatorRadius,
             percentageComplete,
           ),
@@ -253,28 +224,26 @@ class PullToAddControl extends HookWidget {
   }
 
   static Widget _buildIndicatorForRefreshState(
-    RefreshIndicatorMode refreshState,
+    PullToMode mode,
     double radius,
     double percentageComplete,
   ) {
-    return switch (refreshState) {
-      RefreshIndicatorMode.inactive => const SizedBox.shrink(),
-      RefreshIndicatorMode.drag => const Icon(Icons.arrow_downward),
-      RefreshIndicatorMode.overFirstThreshold =>
+    return switch (mode) {
+      PullToMode.inactive => const SizedBox.shrink(),
+      PullToMode.drag => const Icon(Icons.arrow_downward),
+      PullToMode.overFirstThreshold =>
         const Text('add line', textAlign: TextAlign.center),
-      RefreshIndicatorMode.overSecondThreshold =>
+      PullToMode.overSecondThreshold =>
         const Text('add two lines', textAlign: TextAlign.center),
-      RefreshIndicatorMode.animating =>
-        const Text('animating', textAlign: TextAlign.center),
-      RefreshIndicatorMode.done =>
-        const Text('done', textAlign: TextAlign.center),
+      PullToMode.doing => const Text('doing', textAlign: TextAlign.center),
+      PullToMode.done => const Text('done', textAlign: TextAlign.center),
     };
   }
 
   // Pull To Addの状態を計算して返す。
   void transitionNextState({
     required double pulledExtent,
-    required ValueNotifier<RefreshIndicatorMode> refreshState,
+    required ValueNotifier<PullToMode> refreshState,
     required ValueNotifier<Future<void>?> refreshTask,
   }) {
     // 1つ目の閾値
@@ -283,73 +252,73 @@ class PullToAddControl extends HookWidget {
     final secondThreshold = refreshTriggerPullDistance * 2;
 
     switch (refreshState.value) {
-      case RefreshIndicatorMode.inactive:
+      case PullToMode.inactive:
         if (pulledExtent <= 0) {
           return;
         }
-        refreshState.value = RefreshIndicatorMode.drag;
-      case RefreshIndicatorMode.drag:
+        refreshState.value = PullToMode.drag;
+      case PullToMode.drag:
         if (pulledExtent == 0) {
-          refreshState.value = RefreshIndicatorMode.inactive;
+          refreshState.value = PullToMode.inactive;
           return;
         }
         if (pulledExtent >= firstThreshold) {
           HapticFeedback.mediumImpact();
-          refreshState.value = RefreshIndicatorMode.overFirstThreshold;
+          refreshState.value = PullToMode.overFirstThreshold;
         }
-      case RefreshIndicatorMode.overFirstThreshold:
+      case PullToMode.overFirstThreshold:
         if (pulledExtent < firstThreshold) {
-          refreshState.value = RefreshIndicatorMode.drag;
+          refreshState.value = PullToMode.drag;
           return;
         }
         if (pulledExtent >= secondThreshold) {
           HapticFeedback.mediumImpact();
-          refreshState.value = RefreshIndicatorMode.overSecondThreshold;
+          refreshState.value = PullToMode.overSecondThreshold;
           return;
         }
-      case RefreshIndicatorMode.overSecondThreshold:
+      case PullToMode.overSecondThreshold:
         if (pulledExtent < secondThreshold) {
-          refreshState.value = RefreshIndicatorMode.overFirstThreshold;
+          refreshState.value = PullToMode.overFirstThreshold;
           return;
         }
 
-        refreshState.value = RefreshIndicatorMode.overSecondThreshold;
-      case RefreshIndicatorMode.animating:
+        refreshState.value = PullToMode.overSecondThreshold;
+      case PullToMode.doing:
         if (refreshTask.value != null) {
           // リフレッシュ中はリフレッシュを継続。
           return;
         }
-        refreshState.value = RefreshIndicatorMode.done;
+        refreshState.value = PullToMode.done;
         continue done;
       done:
-      case RefreshIndicatorMode.done:
+      case PullToMode.done:
         // 完了後のアニメーションの最後の部分は時間がかかることがあり、
         // 0.0になるまで待っていたら次のユーザーのアクションが開始されてしまうとstatusがバグってしまうため、
         // 非アクティブに戻る遷移を厳密に0.0にする前にトリガーさせます。
         if (pulledExtent > refreshTriggerPullDistance * 0.1) {
           return;
         }
-        refreshState.value = RefreshIndicatorMode.inactive;
+        refreshState.value = PullToMode.inactive;
         return;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final refreshState = useState(RefreshIndicatorMode.inactive);
+    final refreshState = useState(PullToMode.inactive);
     final refreshTask = useState<Future<void>?>(null);
 
     return Listener(
       // 指を離した時
       onPointerUp: (event) async {
         switch (refreshState.value) {
-          case RefreshIndicatorMode.inactive:
-            refreshState.value = RefreshIndicatorMode.inactive;
-          case RefreshIndicatorMode.drag:
+          case PullToMode.inactive:
+            refreshState.value = PullToMode.inactive;
+          case PullToMode.drag:
             await onPull(0);
-            refreshState.value = RefreshIndicatorMode.inactive;
+            refreshState.value = PullToMode.inactive;
             return;
-          case RefreshIndicatorMode.overFirstThreshold:
+          case PullToMode.overFirstThreshold:
             refreshTask.value = onPull(1)
               ..whenComplete(() {
                 refreshTask.value = null;
@@ -358,14 +327,14 @@ class PullToAddControl extends HookWidget {
                 // 行われず、状態が非アクティブでないままになる可能性があります。
                 // transitionNextState();
               });
-            refreshState.value = RefreshIndicatorMode.animating;
-          case RefreshIndicatorMode.overSecondThreshold:
+            refreshState.value = PullToMode.doing;
+          case PullToMode.overSecondThreshold:
             refreshTask.value = onPull(2)
               ..whenComplete(() {
                 refreshTask.value = null;
                 // transitionNextState();
               });
-            refreshState.value = RefreshIndicatorMode.animating;
+            refreshState.value = PullToMode.doing;
           default:
             assert(false);
         }
@@ -376,7 +345,7 @@ class PullToAddControl extends HookWidget {
           _SliverPullToAdd(
             refreshIndicatorExtent: refreshIndicatorExtent,
             // TODO: trueにしてしまうと、最小スペースがrefreshIndicatorExtentになってしまうため、inactiveにならない。
-            // refreshState.value != RefreshIndicatorMode.inactive,
+            // refreshState.value != PullToMode.inactive,
             hasLayoutExtent: false,
             child: LayoutBuilder(builder: (context, constraints) {
               final pulledExtent = constraints.maxHeight;
@@ -390,11 +359,11 @@ class PullToAddControl extends HookWidget {
               });
 
               return builder(
-                context,
-                refreshState.value,
-                pulledExtent,
-                refreshTriggerPullDistance,
-                refreshIndicatorExtent,
+                context: context,
+                mode: refreshState.value,
+                pulledExtent: pulledExtent,
+                refreshTriggerPullDistance: refreshTriggerPullDistance,
+                refreshIndicatorExtent: refreshIndicatorExtent,
               );
             }),
           ),
