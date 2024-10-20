@@ -58,7 +58,7 @@ class RichTextEditorController extends _$RichTextEditorController {
     state.document.insert(
       [0],
       [
-        paragraphNode(delta: Delta()..insert('\n')),
+        paragraphNode(delta: Delta()..insert('')),
       ],
     );
     // フォーカスを先頭に移動する。

@@ -102,28 +102,12 @@ class _PullToAddControlState extends State<PullToControl> {
 
   double pulledExtent = 0.0;
 
-  bool isDragging = false;
-
   // Pull To Addの状態を計算して返す。
   void transitionNextState({
     required ScrollNotification notification,
     required PullToMode mode,
   }) async {
     if (notification is! ScrollUpdateNotification) {
-      return;
-    }
-
-    final nextIsDragging = notification.dragDetails != null;
-
-    // ユーザーが指を離した瞬間に呼ばれる。
-    if (isDragging && !nextIsDragging) {
-      onPointerUp();
-      return;
-    }
-
-    isDragging = nextIsDragging;
-
-    if (!isDragging) {
       return;
     }
 
@@ -158,7 +142,7 @@ class _PullToAddControlState extends State<PullToControl> {
           return;
         }
         if (pulledExtent >= firstThreshold) {
-          HapticFeedback.mediumImpact();
+          HapticFeedback.lightImpact();
           setMode(PullToMode.overFirstThreshold);
         }
       case PullToMode.overFirstThreshold:
@@ -195,10 +179,6 @@ class _PullToAddControlState extends State<PullToControl> {
 
   // ユーザーが指を離した瞬間に呼ばれる。
   Future<void> onPointerUp() async {
-    setState(() {
-      isDragging = false;
-      pulledExtent = 0;
-    });
     switch (mode) {
       case PullToMode.inactive:
         setMode(PullToMode.inactive);
@@ -224,55 +204,51 @@ class _PullToAddControlState extends State<PullToControl> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        NotificationListener<ScrollNotification>(
-          onNotification: (notification) {
-            if (notification is ScrollUpdateNotification) {
-              if (notification.metrics.axisDirection == AxisDirection.down) {
-                setState(() {
-                  pulledExtent = pulledExtent - notification.scrollDelta!;
-                });
-              } else if (notification.metrics.axisDirection ==
-                  AxisDirection.up) {
-                setState(() {
-                  pulledExtent = pulledExtent + notification.scrollDelta!;
-                });
-              }
-            }
-            SchedulerBinding.instance
-                .addPostFrameCallback((Duration timestamp) {
-              transitionNextState(
-                notification: notification,
-                mode: mode,
-              );
-            });
-            return false;
-          },
-          child: NotificationListener<OverscrollIndicatorNotification>(
+    return Listener(
+      onPointerUp: (event) => onPointerUp(),
+      child: Stack(
+        children: [
+          NotificationListener<ScrollNotification>(
             onNotification: (notification) {
-              // TODO: ClampingScrollPhysicsでしか反応しないが実装必要あるか?
-              // https://github.com/flutter/flutter/issues/17649#issuecomment-466771061
-              if (notification.depth != 0 || !notification.leading) {
-                return false;
-              }
-              if (mode == PullToMode.drag) {
-                notification.disallowIndicator();
-                return true;
-              }
+              SchedulerBinding.instance
+                  .addPostFrameCallback((Duration timestamp) {
+                transitionNextState(
+                  notification: notification,
+                  mode: mode,
+                );
+              });
               return false;
             },
-            child: widget.child,
+            child: NotificationListener<OverscrollIndicatorNotification>(
+              onNotification: (notification) {
+                // TODO: ClampingScrollPhysicsでしか反応しないが実装必要あるか?
+                // https://github.com/flutter/flutter/issues/17649#issuecomment-466771061
+                if (notification.depth != 0 || !notification.leading) {
+                  return false;
+                }
+                if (mode == PullToMode.drag) {
+                  notification.disallowIndicator();
+                  return true;
+                }
+                return false;
+              },
+              child: widget.child,
+            ),
           ),
-        ),
-        widget.builder(
-          context: context,
-          mode: mode,
-          pulledExtent: pulledExtent,
-          refreshTriggerPullDistance: widget.refreshTriggerPullDistance,
-          refreshIndicatorExtent: widget.refreshIndicatorExtent,
-        ),
-      ],
+          Positioned(
+            top: 30,
+            left: 30,
+            child: Text('$pulledExtent'),
+          ),
+          widget.builder(
+            context: context,
+            mode: mode,
+            pulledExtent: pulledExtent,
+            refreshTriggerPullDistance: widget.refreshTriggerPullDistance,
+            refreshIndicatorExtent: widget.refreshIndicatorExtent,
+          ),
+        ],
+      ),
     );
   }
 }
