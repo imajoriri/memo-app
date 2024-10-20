@@ -120,14 +120,24 @@ class _PullToAddControlState extends State<PullToControl> {
       });
     }
 
+    // pulledExtentが0未満ということは普通にスクロールしているということなので、
+    // その場合は何もしない。
     if (pulledExtent < 0) {
       return;
+    }
+    if (pulledExtent == 0) {
+      setMode(PullToMode.inactive);
     }
 
     // 1つ目の閾値
     final firstThreshold = widget.refreshTriggerPullDistance;
     // 2つ目の閾値
     final secondThreshold = widget.refreshTriggerPullDistance + 30;
+
+    final isDragging = notification.dragDetails != null;
+    if (!isDragging) {
+      return;
+    }
 
     switch (mode) {
       case PullToMode.inactive:
@@ -143,6 +153,7 @@ class _PullToAddControlState extends State<PullToControl> {
         if (pulledExtent >= firstThreshold) {
           HapticFeedback.lightImpact();
           setMode(PullToMode.overFirstThreshold);
+          return;
         }
       case PullToMode.overFirstThreshold:
         if (pulledExtent < firstThreshold) {
@@ -165,13 +176,6 @@ class _PullToAddControlState extends State<PullToControl> {
         // doingからdoneへの変化はonPointerUpで行うのでここでは何もしない。
         return;
       case PullToMode.done:
-        // 完了後のアニメーションの最後の部分は時間がかかることがあり、
-        // 0.0になるまで待っていたら次のユーザーのアクションが開始されてしまうとstatusがバグってしまうため、
-        // 非アクティブに戻る遷移を厳密に0.0にする前にトリガーさせます。
-        if (pulledExtent > widget.refreshTriggerPullDistance * 0.1) {
-          return;
-        }
-        setMode(PullToMode.inactive);
         return;
     }
   }
@@ -188,13 +192,11 @@ class _PullToAddControlState extends State<PullToControl> {
       case PullToMode.overFirstThreshold:
         widget.onPull(1).whenComplete(() {
           setMode(PullToMode.done);
-          setMode(PullToMode.inactive);
         });
         setMode(PullToMode.doing);
       case PullToMode.overSecondThreshold:
         widget.onPull(2).whenComplete(() {
           setMode(PullToMode.done);
-          setMode(PullToMode.inactive);
         });
         setMode(PullToMode.doing);
       default:
@@ -234,9 +236,9 @@ class _PullToAddControlState extends State<PullToControl> {
             ),
           ),
           Positioned(
-            top: 30,
+            top: 130,
             left: 30,
-            child: Text('$pulledExtent'),
+            child: Text('$pulledExtent ${mode.name}'),
           ),
           widget.builder(
             context: context,
