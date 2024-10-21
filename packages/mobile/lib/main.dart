@@ -107,6 +107,7 @@ class MyHomePage extends HookConsumerWidget {
           PullToControl(
             child: RichTextEditor(
               header: SizedBox(height: MediaQuery.paddingOf(context).top),
+              footer: const SizedBox(height: 100),
               editorState: editorState,
               focusNode: focusNode,
               padding: MediaQuery.paddingOf(context),

@@ -77,7 +77,7 @@ class PullToControl extends StatefulWidget {
         ),
       PullToMode.overFirstThreshold => const BounceText(
           key: ValueKey('pull_to_1'),
-          child: Text('Write something here', textAlign: TextAlign.center),
+          child: Text('Write something to top', textAlign: TextAlign.center),
         ),
       PullToMode.overSecondThreshold => const BounceText(
           key: ValueKey('pull_to_2'),
@@ -110,15 +110,10 @@ class _PullToAddControlState extends State<PullToControl> {
       return;
     }
 
-    if (notification.metrics.axisDirection == AxisDirection.down) {
-      setState(() {
-        pulledExtent = pulledExtent - notification.scrollDelta!;
-      });
-    } else if (notification.metrics.axisDirection == AxisDirection.up) {
-      setState(() {
-        pulledExtent = pulledExtent + notification.scrollDelta!;
-      });
-    }
+    setState(() {
+      // プル中はpulledExtentはプラス値になる。
+      pulledExtent = notification.metrics.pixels * -1;
+    });
 
     // pulledExtentが0未満ということは普通にスクロールしているということなので、
     // その場合は何もしない。
