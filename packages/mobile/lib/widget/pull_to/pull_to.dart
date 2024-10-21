@@ -230,11 +230,6 @@ class _PullToAddControlState extends State<PullToControl> {
               child: widget.child,
             ),
           ),
-          Positioned(
-            top: 130,
-            left: 30,
-            child: Text('$pulledExtent ${mode.name}'),
-          ),
           widget.builder(
             context: context,
             mode: mode,

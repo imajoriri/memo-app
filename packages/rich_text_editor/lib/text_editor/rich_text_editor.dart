@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
 import 'package:rich_text_editor/controller/rich_text_editor_controller.dart';
 
@@ -13,7 +12,7 @@ part 'position.dart';
 part 'drop_area.dart';
 part 'should_ignore_drop.dart';
 
-class RichTextEditor extends HookWidget {
+class RichTextEditor extends StatefulWidget {
   const RichTextEditor({
     super.key,
     required this.editorState,
@@ -36,103 +35,141 @@ class RichTextEditor extends HookWidget {
   final Widget? footer;
 
   @override
+  State<RichTextEditor> createState() => _RichTextEditorState();
+}
+
+class _RichTextEditorState extends State<RichTextEditor> {
+  bool hasFocus = false;
+  late final Map<String, BlockComponentBuilder>
+      blockComponentBuildersForDragging;
+  late final EditorScrollController editorScrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    blockComponentBuildersForDragging = _buildBlockComponentBuilders();
+
+    editorScrollController = EditorScrollController(
+      editorState: widget.editorState,
+    );
+
+    widget.focusNode.addListener(() {
+      hasFocus = widget.focusNode.hasFocus;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     Offset? globalPosition;
 
-    final editorScrollController = EditorScrollController(
-      editorState: editorState,
-    );
-    editorState.transactionStream.listen((event) {
+    widget.editorState.transactionStream.listen((event) {
       if (event.$1 == TransactionTime.after) {
-        onContentChanged?.call(jsonEncode(event.$2.document.toJson()));
+        widget.onContentChanged?.call(jsonEncode(event.$2.document.toJson()));
       }
     });
-    final blockComponentBuildersForDragging =
-        useState(_buildBlockComponentBuilders());
     const tilePadding = EdgeInsets.symmetric(horizontal: 4, vertical: 2);
-
-    final hasFocus = useState(false);
-    focusNode.addListener(() {
-      hasFocus.value = focusNode.hasFocus;
-    });
 
     return Padding(
       padding: EdgeInsets.zero,
-      child: AppFlowyEditor(
-        header: header,
-        footer: footer,
-        focusNode: focusNode,
-        editorState: editorState,
+      child: MobileFloatingToolbar(
+        editorState: widget.editorState,
         editorScrollController: editorScrollController,
-        enableAutoComplete: true,
-        editorStyle: const EditorStyle.mobile(
-          padding: EdgeInsets.zero,
-        ),
-        blockComponentBuilders: _buildBlockComponentBuilders(),
-        commandShortcutEvents: [
-          ...standardCommandShortcutEvents,
-        ],
-        characterShortcutEvents: [
-          ...standardCharacterShortcutEvents,
-        ],
-        autoFocus: true,
-        buildWrapper: (context, child, node, blockComponentContext) {
-          final blockComponentContextForFeedback = BlockComponentContext(
-            context,
-            blockComponentContext.node.copyWith(),
-          );
-          return _RichTextTile(
-            padding: tilePadding,
-            blockComponentContext: blockComponentContext,
-            editorState: editorState,
-            blockComponentBuilders: blockComponentBuildersForDragging.value,
-            hasFocus: hasFocus.value,
-            onDragStarted: () {
-              editorState.selectionService.removeDropTarget();
+        toolbarBuilder: (context, anchor, closeToolbar) {
+          return AdaptiveTextSelectionToolbar.editable(
+            clipboardStatus: ClipboardStatus.pasteable,
+            onCopy: () {
+              copyCommand.execute(widget.editorState);
+              closeToolbar();
             },
-            onDragUpdate: (details) {
-              editorState.selectionService.renderDropTargetForOffset(
-                details.globalPosition,
-                builder: (context, data) => DropArea(
-                  data: data,
-                  dragNode: node,
-                ),
-              );
-
-              globalPosition = details.globalPosition;
-
-              editorState.scrollService
-                  ?.startAutoScroll(details.globalPosition);
-            },
-            onDragEnd: (details) {
-              editorState.selectionService.removeDropTarget();
-
-              if (globalPosition == null) {
-                return;
-              }
-
-              final data = editorState.selectionService.getDropTargetRenderData(
-                globalPosition!,
-              );
-
-              _moveNodeToNewPosition(
-                context,
-                editorState,
-                blockComponentContext,
-                node,
-                data?.cursorNode?.path,
-                globalPosition!,
-              );
-            },
-            feedback: _Feedback(
-              editorState: editorState,
-              blockComponentBuilders: blockComponentBuildersForDragging.value,
-              blockComponentContext: blockComponentContextForFeedback,
-              padding: tilePadding,
+            onCut: () => cutCommand.execute(widget.editorState),
+            onPaste: () => pasteCommand.execute(widget.editorState),
+            onSelectAll: () => selectAllCommand.execute(widget.editorState),
+            onLiveTextInput: null,
+            onLookUp: null,
+            onSearchWeb: null,
+            onShare: null,
+            anchors: TextSelectionToolbarAnchors(
+              primaryAnchor: anchor,
             ),
-            child: child,
           );
         },
+        child: AppFlowyEditor(
+          header: widget.header,
+          footer: widget.footer,
+          focusNode: widget.focusNode,
+          editorState: widget.editorState,
+          editorScrollController: editorScrollController,
+          enableAutoComplete: true,
+          editorStyle: const EditorStyle.mobile(
+            padding: EdgeInsets.zero,
+          ),
+          blockComponentBuilders: _buildBlockComponentBuilders(),
+          commandShortcutEvents: [
+            ...standardCommandShortcutEvents,
+          ],
+          characterShortcutEvents: [
+            ...standardCharacterShortcutEvents,
+          ],
+          autoFocus: true,
+          buildWrapper: (context, child, node, blockComponentContext) {
+            final blockComponentContextForFeedback = BlockComponentContext(
+              context,
+              blockComponentContext.node.copyWith(),
+            );
+            return _RichTextTile(
+              padding: tilePadding,
+              blockComponentContext: blockComponentContext,
+              editorState: widget.editorState,
+              blockComponentBuilders: blockComponentBuildersForDragging,
+              hasFocus: hasFocus,
+              onDragStarted: () {
+                widget.editorState.selectionService.removeDropTarget();
+              },
+              onDragUpdate: (details) {
+                widget.editorState.selectionService.renderDropTargetForOffset(
+                  details.globalPosition,
+                  builder: (context, data) => DropArea(
+                    data: data,
+                    dragNode: node,
+                  ),
+                );
+
+                globalPosition = details.globalPosition;
+
+                widget.editorState.scrollService
+                    ?.startAutoScroll(details.globalPosition);
+              },
+              onDragEnd: (details) {
+                widget.editorState.selectionService.removeDropTarget();
+
+                if (globalPosition == null) {
+                  return;
+                }
+
+                final data =
+                    widget.editorState.selectionService.getDropTargetRenderData(
+                  globalPosition!,
+                );
+
+                _moveNodeToNewPosition(
+                  context,
+                  widget.editorState,
+                  blockComponentContext,
+                  node,
+                  data?.cursorNode?.path,
+                  globalPosition!,
+                );
+              },
+              feedback: _Feedback(
+                editorState: widget.editorState,
+                blockComponentBuilders: blockComponentBuildersForDragging,
+                blockComponentContext: blockComponentContextForFeedback,
+                padding: tilePadding,
+              ),
+              child: child,
+            );
+          },
+        ),
       ),
     );
   }
