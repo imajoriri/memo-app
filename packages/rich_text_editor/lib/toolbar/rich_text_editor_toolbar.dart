@@ -1,15 +1,19 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rich_text_editor/controller/rich_text_editor_controller.dart';
+import 'package:widgets/widget.dart';
 
 class RichTextEditorToolbar extends StatelessWidget {
   const RichTextEditorToolbar({
     super.key,
     required this.controller,
-    this.padding = EdgeInsets.zero,
+    this.leftAddPadding = 0,
+    this.rightAddPadding = 0,
   });
 
   final RichTextEditorController controller;
-  final EdgeInsetsGeometry padding;
+  final double leftAddPadding;
+  final double rightAddPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -17,93 +21,120 @@ class RichTextEditorToolbar extends StatelessWidget {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutExpo,
       color: Colors.grey[200],
-      padding: padding,
+      padding: EdgeInsets.symmetric(
+        horizontal: context.tokeruSpacing.smallX + leftAddPadding,
+        vertical: context.tokeruSpacing.smallX,
+      ),
       child: Row(
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  // 現在の行をチェックボックスにする
-                  IconButton(
-                    onPressed: () {
-                      controller.toggleCheckbox();
-                    },
-                    icon: const Icon(Icons.check_box),
-                  ),
-
-                  // 現在の行をbulletにする
-                  IconButton(
-                    onPressed: () {
-                      controller.toggleBullet();
-                    },
-                    icon: const Icon(Icons.format_list_bulleted),
-                  ),
-
-                  // インデントをプラスする
-                  IconButton(
-                    onPressed: () {
-                      controller.increaseIndent();
-                    },
-                    icon: const Icon(Icons.format_indent_increase),
-                  ),
-
-                  // インデントをマイナスする
-                  IconButton(
-                    onPressed: () {
-                      controller.decreaseIndent();
-                    },
-                    icon: const Icon(Icons.format_indent_decrease),
-                  ),
-
-                  // 現在の行をHeaderにする
-                  IconButton(
-                    onPressed: () {
-                      controller.toggleHeader(1);
-                    },
-                    icon: const Icon(Icons.format_bold),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      controller.toggleHeader(2);
-                    },
-                    icon: const Icon(Icons.format_bold),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      controller.toggleHeader(3);
-                    },
-                    icon: const Icon(Icons.format_bold),
-                  ),
-
-                  // 現在の行を削除するボタン
-                  IconButton(
-                    onPressed: () {
-                      controller.deleteCurrentLine();
-                    },
-                    icon: const Icon(Icons.delete),
-                  ),
-
-                  // 現在の行の下に新しい行を追加するボタン
-                  IconButton(
-                    onPressed: () {
-                      controller.addNewLineToCurrentLine();
-                    },
-                    icon: const Icon(Icons.add),
-                  ),
-                ],
-              ),
-            ),
+            child: _Buttons(controller: controller),
           ),
 
           // キーボード閉じるボタン
-          IconButton(
+          TokeruIconButton.medium(
             onPressed: () {
               // キーボードを閉じる
               FocusScope.of(context).unfocus();
             },
-            icon: const Icon(Icons.keyboard_hide),
+            icon: const Icon(CupertinoIcons.keyboard_chevron_compact_down),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Buttons extends StatelessWidget {
+  const _Buttons({
+    required this.controller,
+  });
+
+  final RichTextEditorController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    const space = 8.0;
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          // 現在の行をチェックボックスにする
+          TokeruIconButton.medium(
+            icon: const Icon(CupertinoIcons.text_badge_checkmark),
+            onPressed: () {
+              controller.toggleCheckbox();
+            },
+          ),
+          const SizedBox(width: space),
+
+          // 現在の行をbulletにする
+          TokeruIconButton.medium(
+            onPressed: () {
+              controller.toggleBullet();
+            },
+            icon: const Icon(CupertinoIcons.list_bullet),
+          ),
+          const SizedBox(width: space),
+
+          // インデントをプラスする
+          TokeruIconButton.medium(
+            onPressed: () {
+              controller.increaseIndent();
+            },
+            icon: const Icon(Icons.format_indent_increase),
+          ),
+          const SizedBox(width: space),
+
+          // インデントをマイナスする
+          TokeruIconButton.medium(
+            onPressed: () {
+              controller.decreaseIndent();
+            },
+            icon: const Icon(Icons.format_indent_decrease),
+          ),
+          const SizedBox(width: space),
+
+          // 現在の行をHeaderにする
+          TokeruIconButton.medium(
+            onPressed: () {
+              controller.toggleHeader(1);
+            },
+            icon: const Icon(Icons.format_bold),
+          ),
+          const SizedBox(width: space),
+
+          TokeruIconButton.medium(
+            onPressed: () {
+              controller.toggleHeader(2);
+            },
+            icon: const Icon(Icons.format_bold),
+          ),
+          const SizedBox(width: space),
+
+          TokeruIconButton.medium(
+            onPressed: () {
+              controller.toggleHeader(3);
+            },
+            icon: const Icon(Icons.format_bold),
+          ),
+          const SizedBox(width: space),
+
+          // 現在の行を削除するボタン
+          TokeruIconButton.medium(
+            onPressed: () {
+              controller.deleteCurrentLine();
+            },
+            icon: const Icon(Icons.delete),
+          ),
+          const SizedBox(width: space),
+
+          // 現在の行の下に新しい行を追加するボタン
+          TokeruIconButton.medium(
+            onPressed: () {
+              controller.addNewLineToCurrentLine();
+            },
+            icon: const Icon(Icons.add),
           ),
         ],
       ),

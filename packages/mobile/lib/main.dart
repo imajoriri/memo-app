@@ -12,6 +12,7 @@ import 'package:model/controller/latest_memo.dart';
 import 'package:rich_text_editor/text_editor/rich_text_editor.dart';
 import 'package:rich_text_editor/controller/rich_text_editor_controller.dart';
 import 'package:rich_text_editor/toolbar/rich_text_editor_toolbar.dart';
+import 'package:widgets/widget.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,10 +66,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      theme: TokeruTheme.light,
+      darkTheme: TokeruTheme.dark,
+      themeMode: ThemeMode.light,
       home: const MyHomePage(),
     );
   }
@@ -133,11 +133,8 @@ class MyHomePage extends HookConsumerWidget {
             left: 0,
             right: 0,
             child: RichTextEditorToolbar(
-              padding: switch (deviceTilt) {
-                DeviceTiltState.right => const EdgeInsets.only(left: 100),
-                DeviceTiltState.left => const EdgeInsets.only(right: 100),
-                _ => EdgeInsets.zero,
-              },
+              leftAddPadding: deviceTilt == DeviceTiltState.right ? 100 : 0,
+              rightAddPadding: deviceTilt == DeviceTiltState.left ? 100 : 0,
               controller: controller,
             ),
           ),

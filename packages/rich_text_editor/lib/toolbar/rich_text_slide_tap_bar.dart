@@ -12,31 +12,24 @@ class RichTextSlideTapBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.shrink();
-    // return SlidingTapGroup(
-    //   child: Column(
-    //     children: [
-    //       _Button(
-    //         onToggle: () {
-    //           controller.toggleCheckList();
-    //         },
-    //         icon: const Icon(Icons.check_box),
-    //       ),
-    //       _Button(
-    //         onToggle: () {
-    //           controller.toggleList(Attribute.ol);
-    //         },
-    //         icon: const Icon(Icons.format_list_numbered),
-    //       ),
-    //       _Button(
-    //         onToggle: () {
-    //           controller.toggleList(Attribute.ul);
-    //         },
-    //         icon: const Icon(Icons.format_list_bulleted),
-    //       ),
-    //     ],
-    //   ),
-    // );
+    return SlidingTapGroup(
+      child: Column(
+        children: [
+          _Button(
+            onToggle: () {},
+            icon: const Icon(Icons.check_box),
+          ),
+          _Button(
+            onToggle: () {},
+            icon: const Icon(Icons.format_list_numbered),
+          ),
+          _Button(
+            onToggle: () {},
+            icon: const Icon(Icons.format_list_bulleted),
+          ),
+        ],
+      ),
+    );
   }
 }
 
