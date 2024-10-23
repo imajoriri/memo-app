@@ -21,9 +21,11 @@ class RichTextEditorToolbar extends StatelessWidget {
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOutExpo,
       color: Colors.grey[200],
-      padding: EdgeInsets.symmetric(
-        horizontal: context.tokeruSpacing.smallX + leftAddPadding,
-        vertical: context.tokeruSpacing.smallX,
+      padding: EdgeInsets.only(
+        left: context.tokeruSpacing.smallX + leftAddPadding,
+        right: context.tokeruSpacing.smallX + rightAddPadding,
+        bottom: context.tokeruSpacing.smallX,
+        top: context.tokeruSpacing.smallX,
       ),
       child: Row(
         children: [
