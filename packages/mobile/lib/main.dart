@@ -96,6 +96,9 @@ class MyHomePage extends HookConsumerWidget {
 
     final deviceTilt = ref.watch(deviceTiltProvider);
     ref.listen(deviceTiltProvider, (previous, next) {
+      if (!focusNode.hasFocus) {
+        return;
+      }
       if (next == DeviceTiltState.right || next == DeviceTiltState.left) {
         HapticFeedback.lightImpact();
       }
