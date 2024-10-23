@@ -69,107 +69,104 @@ class _RichTextEditorState extends State<RichTextEditor> {
     });
     const tilePadding = EdgeInsets.symmetric(horizontal: 4, vertical: 2);
 
-    return Padding(
-      padding: EdgeInsets.zero,
-      child: MobileFloatingToolbar(
+    return MobileFloatingToolbar(
+      editorState: widget.editorState,
+      editorScrollController: editorScrollController,
+      toolbarBuilder: (context, anchor, closeToolbar) {
+        return AdaptiveTextSelectionToolbar.editable(
+          clipboardStatus: ClipboardStatus.pasteable,
+          onCopy: () {
+            copyCommand.execute(widget.editorState);
+            closeToolbar();
+          },
+          onCut: () => cutCommand.execute(widget.editorState),
+          onPaste: () => pasteCommand.execute(widget.editorState),
+          onSelectAll: () => selectAllCommand.execute(widget.editorState),
+          onLiveTextInput: null,
+          onLookUp: null,
+          onSearchWeb: null,
+          onShare: null,
+          anchors: TextSelectionToolbarAnchors(
+            primaryAnchor: anchor,
+          ),
+        );
+      },
+      child: AppFlowyEditor(
+        header: widget.header,
+        footer: widget.footer,
+        focusNode: widget.focusNode,
         editorState: widget.editorState,
         editorScrollController: editorScrollController,
-        toolbarBuilder: (context, anchor, closeToolbar) {
-          return AdaptiveTextSelectionToolbar.editable(
-            clipboardStatus: ClipboardStatus.pasteable,
-            onCopy: () {
-              copyCommand.execute(widget.editorState);
-              closeToolbar();
-            },
-            onCut: () => cutCommand.execute(widget.editorState),
-            onPaste: () => pasteCommand.execute(widget.editorState),
-            onSelectAll: () => selectAllCommand.execute(widget.editorState),
-            onLiveTextInput: null,
-            onLookUp: null,
-            onSearchWeb: null,
-            onShare: null,
-            anchors: TextSelectionToolbarAnchors(
-              primaryAnchor: anchor,
-            ),
+        enableAutoComplete: true,
+        editorStyle: const EditorStyle.mobile(
+          padding: EdgeInsets.zero,
+        ),
+        blockComponentBuilders: _buildBlockComponentBuilders(),
+        commandShortcutEvents: [
+          ...standardCommandShortcutEvents,
+        ],
+        characterShortcutEvents: [
+          ...standardCharacterShortcutEvents,
+        ],
+        autoFocus: true,
+        buildWrapper: (context, child, node, blockComponentContext) {
+          final blockComponentContextForFeedback = BlockComponentContext(
+            context,
+            blockComponentContext.node.copyWith(),
           );
-        },
-        child: AppFlowyEditor(
-          header: widget.header,
-          footer: widget.footer,
-          focusNode: widget.focusNode,
-          editorState: widget.editorState,
-          editorScrollController: editorScrollController,
-          enableAutoComplete: true,
-          editorStyle: const EditorStyle.mobile(
-            padding: EdgeInsets.zero,
-          ),
-          blockComponentBuilders: _buildBlockComponentBuilders(),
-          commandShortcutEvents: [
-            ...standardCommandShortcutEvents,
-          ],
-          characterShortcutEvents: [
-            ...standardCharacterShortcutEvents,
-          ],
-          autoFocus: true,
-          buildWrapper: (context, child, node, blockComponentContext) {
-            final blockComponentContextForFeedback = BlockComponentContext(
-              context,
-              blockComponentContext.node.copyWith(),
-            );
-            return _RichTextTile(
-              padding: tilePadding,
-              blockComponentContext: blockComponentContext,
+          return _RichTextTile(
+            padding: tilePadding,
+            blockComponentContext: blockComponentContext,
+            editorState: widget.editorState,
+            blockComponentBuilders: blockComponentBuildersForDragging,
+            hasFocus: hasFocus,
+            onDragStarted: () {
+              widget.editorState.selectionService.removeDropTarget();
+            },
+            onDragUpdate: (details) {
+              widget.editorState.selectionService.renderDropTargetForOffset(
+                details.globalPosition,
+                builder: (context, data) => DropArea(
+                  data: data,
+                  dragNode: node,
+                ),
+              );
+
+              globalPosition = details.globalPosition;
+
+              widget.editorState.scrollService
+                  ?.startAutoScroll(details.globalPosition);
+            },
+            onDragEnd: (details) {
+              widget.editorState.selectionService.removeDropTarget();
+
+              if (globalPosition == null) {
+                return;
+              }
+
+              final data =
+                  widget.editorState.selectionService.getDropTargetRenderData(
+                globalPosition!,
+              );
+
+              _moveNodeToNewPosition(
+                context,
+                widget.editorState,
+                blockComponentContext,
+                node,
+                data?.cursorNode?.path,
+                globalPosition!,
+              );
+            },
+            feedback: _Feedback(
               editorState: widget.editorState,
               blockComponentBuilders: blockComponentBuildersForDragging,
-              hasFocus: hasFocus,
-              onDragStarted: () {
-                widget.editorState.selectionService.removeDropTarget();
-              },
-              onDragUpdate: (details) {
-                widget.editorState.selectionService.renderDropTargetForOffset(
-                  details.globalPosition,
-                  builder: (context, data) => DropArea(
-                    data: data,
-                    dragNode: node,
-                  ),
-                );
-
-                globalPosition = details.globalPosition;
-
-                widget.editorState.scrollService
-                    ?.startAutoScroll(details.globalPosition);
-              },
-              onDragEnd: (details) {
-                widget.editorState.selectionService.removeDropTarget();
-
-                if (globalPosition == null) {
-                  return;
-                }
-
-                final data =
-                    widget.editorState.selectionService.getDropTargetRenderData(
-                  globalPosition!,
-                );
-
-                _moveNodeToNewPosition(
-                  context,
-                  widget.editorState,
-                  blockComponentContext,
-                  node,
-                  data?.cursorNode?.path,
-                  globalPosition!,
-                );
-              },
-              feedback: _Feedback(
-                editorState: widget.editorState,
-                blockComponentBuilders: blockComponentBuildersForDragging,
-                blockComponentContext: blockComponentContextForFeedback,
-                padding: tilePadding,
-              ),
-              child: child,
-            );
-          },
-        ),
+              blockComponentContext: blockComponentContextForFeedback,
+              padding: tilePadding,
+            ),
+            child: child,
+          );
+        },
       ),
     );
   }
