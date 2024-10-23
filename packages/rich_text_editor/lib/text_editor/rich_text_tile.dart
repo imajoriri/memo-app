@@ -56,14 +56,14 @@ class _RichTextTileState extends State<_RichTextTile> {
     );
 
     // ページブロック以外はドラッグで削除できる
-    if (widget.blockComponentContext.node.type != PageBlockKeys.type &&
-        isMobile) {
-      result = Dismissible(
-        key: Key(widget.blockComponentContext.node.id),
-        onDismissed: (direction) {},
-        child: result,
-      );
-    }
+    // if (widget.blockComponentContext.node.type != PageBlockKeys.type &&
+    //     isMobile) {
+    //   result = Dismissible(
+    //     key: Key(widget.blockComponentContext.node.id),
+    //     onDismissed: (direction) {},
+    //     child: result,
+    //   );
+    // }
 
     if (!widget.hasFocus &&
         widget.blockComponentContext.node.type != PageBlockKeys.type) {
