@@ -2,7 +2,6 @@ part of 'rich_text_editor.dart';
 
 class _RichTextTile extends StatefulWidget {
   const _RichTextTile({
-    super.key,
     required this.child,
     required this.feedback,
     required this.blockComponentContext,
@@ -34,42 +33,46 @@ class _RichTextTile extends StatefulWidget {
 class _RichTextTileState extends State<_RichTextTile> {
   @override
   Widget build(BuildContext context) {
-    final tile = Dismissible(
-      key: Key(widget.blockComponentContext.node.id),
-      onDismissed: (direction) {
-        print('dismissed');
-      },
-      child: Padding(
-        padding: widget.padding,
-        child: Stack(
-          children: [
-            widget.child,
-            // Positioned(
-            //   top: 0,
-            //   right: 0,
-            //   child: IconButton(
-            //     onPressed: () {
-            //       // editorState.insertPlainText('Hello');
-            //     },
-            //     icon: Icon(Icons.add),
-            //   ),
-            // ),
-          ],
-        ),
+    Widget result = Padding(
+      padding: widget.padding,
+      child: Stack(
+        children: [
+          widget.child,
+          // Positioned(
+          //   top: 0,
+          //   right: 0,
+          //   child: IconButton(
+          //     onPressed: () {
+          //       // editorState.insertPlainText('Hello');
+          //     },
+          //     icon: Icon(Icons.add),
+          //   ),
+          // ),
+        ],
       ),
     );
 
-    if (widget.hasFocus) {
-      return tile;
+    // ページブロック以外はドラッグで削除できる
+    if (widget.blockComponentContext.node.type != PageBlockKeys.type) {
+      result = Dismissible(
+        key: Key(widget.blockComponentContext.node.id),
+        onDismissed: (direction) {},
+        child: result,
+      );
     }
 
-    return LongPressDraggable<Node>(
-      data: widget.blockComponentContext.node,
-      onDragStarted: widget.onDragStarted,
-      onDragUpdate: widget.onDragUpdate,
-      onDragEnd: widget.onDragEnd,
-      feedback: widget.feedback,
-      child: tile,
-    );
+    if (!widget.hasFocus &&
+        widget.blockComponentContext.node.type != PageBlockKeys.type) {
+      result = LongPressDraggable<Node>(
+        data: widget.blockComponentContext.node,
+        onDragStarted: widget.onDragStarted,
+        onDragUpdate: widget.onDragUpdate,
+        onDragEnd: widget.onDragEnd,
+        feedback: widget.feedback,
+        child: result,
+      );
+    }
+
+    return result;
   }
 }

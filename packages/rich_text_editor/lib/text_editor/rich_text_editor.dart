@@ -54,7 +54,10 @@ class _RichTextEditorState extends State<RichTextEditor> {
     );
 
     widget.focusNode.addListener(() {
-      hasFocus = widget.focusNode.hasFocus;
+      print('focusNode: ${widget.focusNode.hasFocus}');
+      setState(() {
+        hasFocus = widget.focusNode.hasFocus;
+      });
     });
   }
 
@@ -108,7 +111,6 @@ class _RichTextEditorState extends State<RichTextEditor> {
         characterShortcutEvents: [
           ...standardCharacterShortcutEvents,
         ],
-        autoFocus: true,
         buildWrapper: (context, child, node, blockComponentContext) {
           final blockComponentContextForFeedback = BlockComponentContext(
             context,
