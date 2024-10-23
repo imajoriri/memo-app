@@ -54,7 +54,6 @@ class _RichTextEditorState extends State<RichTextEditor> {
     );
 
     widget.focusNode.addListener(() {
-      print('focusNode: ${widget.focusNode.hasFocus}');
       setState(() {
         hasFocus = widget.focusNode.hasFocus;
       });
@@ -70,7 +69,7 @@ class _RichTextEditorState extends State<RichTextEditor> {
         widget.onContentChanged?.call(jsonEncode(event.$2.document.toJson()));
       }
     });
-    const tilePadding = EdgeInsets.symmetric(horizontal: 4, vertical: 2);
+    const tilePadding = EdgeInsets.symmetric(horizontal: 12, vertical: 2);
 
     return MobileFloatingToolbar(
       editorState: widget.editorState,
@@ -100,10 +99,9 @@ class _RichTextEditorState extends State<RichTextEditor> {
         focusNode: widget.focusNode,
         editorState: widget.editorState,
         editorScrollController: editorScrollController,
-        enableAutoComplete: true,
-        editorStyle: const EditorStyle.mobile(
-          padding: EdgeInsets.zero,
-        ),
+        editorStyle: isMobile
+            ? const EditorStyle.mobile(padding: EdgeInsets.zero)
+            : const EditorStyle.desktop(),
         blockComponentBuilders: _buildBlockComponentBuilders(),
         commandShortcutEvents: [
           ...standardCommandShortcutEvents,
@@ -247,12 +245,12 @@ Map<String, BlockComponentBuilder> _buildBlockComponentBuilders() {
     ),
   );
 
-  // map.forEach((key, value) {
-  //   // 1行ごとのpaddingを設定
-  //   value.configuration = value.configuration.copyWith(
-  //     padding: (_) => const EdgeInsets.symmetric(vertical: 8.0),
-  //   );
-  // });
+  map.forEach((key, value) {
+    // 1行ごとのpaddingを設定
+    // value.configuration = value.configuration.copyWith(
+    //   padding: (_) => const EdgeInsets.symmetric(vertical: 8.0),
+    // );
+  });
   return map;
 }
 

@@ -129,16 +129,17 @@ class MyHomePage extends HookConsumerWidget {
               }
             },
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: RichTextEditorToolbar(
-              leftAddPadding: deviceTilt == DeviceTiltState.right ? 100 : 0,
-              rightAddPadding: deviceTilt == DeviceTiltState.left ? 100 : 0,
-              controller: controller,
+          if (focusNode.hasFocus)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: RichTextEditorToolbar(
+                leftAddPadding: deviceTilt == DeviceTiltState.right ? 100 : 0,
+                rightAddPadding: deviceTilt == DeviceTiltState.left ? 100 : 0,
+                controller: controller,
+              ),
             ),
-          ),
         ],
       ),
     );
