@@ -31,6 +31,9 @@ class _RichTextTile extends StatefulWidget {
 }
 
 class _RichTextTileState extends State<_RichTextTile> {
+  bool get isMobile =>
+      defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.android;
   @override
   Widget build(BuildContext context) {
     Widget result = Padding(
@@ -53,7 +56,8 @@ class _RichTextTileState extends State<_RichTextTile> {
     );
 
     // ページブロック以外はドラッグで削除できる
-    if (widget.blockComponentContext.node.type != PageBlockKeys.type) {
+    if (widget.blockComponentContext.node.type != PageBlockKeys.type &&
+        isMobile) {
       result = Dismissible(
         key: Key(widget.blockComponentContext.node.id),
         onDismissed: (direction) {},
