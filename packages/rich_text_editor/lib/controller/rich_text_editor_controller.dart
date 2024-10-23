@@ -31,7 +31,8 @@ class RichTextEditorState extends EditorState {
     Document? document,
   }) : super(document: document ?? Document.blank());
 
-  RichTextEditorState.blank() : super(document: Document.blank());
+  RichTextEditorState.blank()
+      : super(document: Document.blank(withInitialText: true));
 }
 
 @riverpod
