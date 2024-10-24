@@ -173,6 +173,29 @@ class RichTextEditorController extends _$RichTextEditorController {
     );
   }
 
+  /// 現在の行をnumber listにする。
+  void toggleNumberList() {
+    final selection = state.selection;
+    if (selection == null) {
+      return;
+    }
+    final node = state.getNodeAtPath(selection.start.path);
+    if (node == null) {
+      return;
+    }
+    final isTodoList = node.type == NumberedListBlockKeys.type;
+
+    state.formatNode(
+      selection,
+      (node) => node.copyWith(
+        type: isTodoList ? ParagraphBlockKeys.type : NumberedListBlockKeys.type,
+        attributes: {
+          ParagraphBlockKeys.delta: (node.delta ?? Delta()).toJson(),
+        },
+      ),
+    );
+  }
+
   /// インデントをプラスする
   void increaseIndent() {
     indentCommand.execute(state);

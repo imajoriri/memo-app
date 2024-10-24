@@ -1,3 +1,4 @@
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:rich_text_editor/controller/rich_text_editor_controller.dart';
@@ -79,6 +80,15 @@ class _Buttons extends StatelessWidget {
           ),
           const SizedBox(width: space),
 
+          // 現在の行をnumber listにする
+          TokeruIconButton.medium(
+            onPressed: () {
+              controller.toggleNumberList();
+            },
+            icon: const Icon(CupertinoIcons.list_number),
+          ),
+          const SizedBox(width: space),
+
           // インデントをプラスする
           TokeruIconButton.medium(
             onPressed: () {
@@ -102,7 +112,10 @@ class _Buttons extends StatelessWidget {
             onPressed: () {
               controller.toggleHeader(1);
             },
-            icon: const Icon(Icons.format_bold),
+            icon: const AFMobileIcon(
+              afMobileIcons: AFMobileIcons.h1,
+              size: 20,
+            ),
           ),
           const SizedBox(width: space),
 
@@ -110,7 +123,10 @@ class _Buttons extends StatelessWidget {
             onPressed: () {
               controller.toggleHeader(2);
             },
-            icon: const Icon(Icons.format_bold),
+            icon: const AFMobileIcon(
+              afMobileIcons: AFMobileIcons.h2,
+              size: 20,
+            ),
           ),
           const SizedBox(width: space),
 
@@ -118,7 +134,10 @@ class _Buttons extends StatelessWidget {
             onPressed: () {
               controller.toggleHeader(3);
             },
-            icon: const Icon(Icons.format_bold),
+            icon: const AFMobileIcon(
+              afMobileIcons: AFMobileIcons.h3,
+              size: 20,
+            ),
           ),
           const SizedBox(width: space),
 
