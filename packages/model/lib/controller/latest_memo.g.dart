@@ -6,7 +6,7 @@ part of 'latest_memo.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$latestMemoHash() => r'41a3a6bb9026c6c6120aeff07be9fb82212fba54';
+String _$latestMemoHash() => r'5e9554700e207be507a8ac3efe31f1a67c945df1';
 
 /// 最新のメモを取得する。
 ///

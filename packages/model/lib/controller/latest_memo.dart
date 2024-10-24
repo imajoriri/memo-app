@@ -1,3 +1,4 @@
+import 'package:model/controller/login_user.dart';
 import 'package:model/controller/session.dart';
 import 'package:model/model/memo.dart';
 import 'package:model/repository/memo_repository.dart';
@@ -6,9 +7,6 @@ import 'package:uuid/uuid.dart';
 
 part 'latest_memo.g.dart';
 
-// TODO
-const userId = 'test6';
-
 /// 最新のメモを取得する。
 ///
 /// 1件もない場合は、作成して返す。
@@ -16,6 +14,11 @@ const userId = 'test6';
 class LatestMemo extends _$LatestMemo {
   @override
   Stream<Memo?> build() {
+    final userId = ref.watch(loginUserProvider).valueOrNull?.id;
+    if (userId == null) {
+      return const Stream.empty();
+    }
+
     final repository = ref.watch(memoRepositoryProvider);
 
     return repository.latest(userId).map((memo) {
@@ -37,6 +40,10 @@ class LatestMemo extends _$LatestMemo {
 
   /// メモの末尾に新しいメモを追加する。
   Future<void> addToBottom(String content) async {
+    final userId = ref.watch(loginUserProvider).valueOrNull?.id;
+    if (userId == null) {
+      return;
+    }
     final memo = await ref.read(memoRepositoryProvider).fetchLatest(userId);
     await ref.read(memoRepositoryProvider).updateMemo(
           memo: memo!.copyWith(content: "${memo.content}\n$content"),
@@ -46,6 +53,11 @@ class LatestMemo extends _$LatestMemo {
 
   /// メモを更新する。
   Future<void> updateMemo(String content) async {
+    final userId = ref.watch(loginUserProvider).valueOrNull?.id;
+    if (userId == null) {
+      return;
+    }
+
     final memo = state.valueOrNull;
     if (memo == null) {
       return;
@@ -67,6 +79,11 @@ class LatestMemo extends _$LatestMemo {
 
   /// 新しいメモを作成する。
   Future<void> createMemo() async {
+    final userId = ref.watch(loginUserProvider).valueOrNull?.id;
+    if (userId == null) {
+      return;
+    }
+
     await ref.read(memoRepositoryProvider).addMemo(
           memo: Memo(
             id: const Uuid().v4(),
