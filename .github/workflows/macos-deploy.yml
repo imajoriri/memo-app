@@ -27,7 +27,7 @@ jobs:
       - name: clone flutter-quill
         run: |
           echo ${{ github.workspace }}
-          cd ../
+          cd ../../
           git clone https://github.com/imajoriri/flutter-quill.git
           git clone https://github.com/imajoriri/appflowy-editor
 
