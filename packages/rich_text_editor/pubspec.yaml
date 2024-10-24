@@ -23,7 +23,6 @@ dependencies:
 
   dio: ^5.7.0
   html: ^0.15.4
-  pull_down_button: ^0.10.2
   flutter_quill:
     # github actions等で使用する場合はcloneする必要がある
     path: ../../../flutter-quill
