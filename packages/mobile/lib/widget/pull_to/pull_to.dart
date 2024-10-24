@@ -77,11 +77,11 @@ class PullToControl extends StatefulWidget {
         ),
       PullToMode.overFirstThreshold => const BounceText(
           key: ValueKey('pull_to_1'),
-          child: Text('Write something to top', textAlign: TextAlign.center),
+          child: Text('Add new line', textAlign: TextAlign.center),
         ),
       PullToMode.overSecondThreshold => const BounceText(
           key: ValueKey('pull_to_2'),
-          child: Text('Add two new lines', textAlign: TextAlign.center),
+          child: Text('Add new two lines', textAlign: TextAlign.center),
         ),
       PullToMode.doing => const SizedBox.shrink(),
       PullToMode.done => const SizedBox.shrink(),
