@@ -17,6 +17,8 @@ dependencies:
   hooks_riverpod: ^3.0.0-dev.3
   flutter_hooks: ^0.20.5
 
+  flutter_launcher_icons: ^0.14.1
+
   model:
   widgets:
   rich_text_editor:
